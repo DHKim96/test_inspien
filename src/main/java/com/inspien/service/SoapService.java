@@ -5,4 +5,6 @@ import com.inspien.model.dto.User;
 public interface SoapService {
 
     String requestSoap(User user);
+
+    void parseSoapXML(String soapxml);
 }

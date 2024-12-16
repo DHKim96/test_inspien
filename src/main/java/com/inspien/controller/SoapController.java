@@ -7,15 +7,12 @@ import com.inspien.view.SoapUI;
 
 public class SoapController {
     private final SoapService soapService;
-    private final SoapUI soapUI;
-
 
     public SoapController() {
         this.soapService = new SoapServiceImpl();
-        this.soapUI = new SoapUI();
     }
 
-    private void executeService(String name, String phone, String email){
+    public void executeService(String name, String phone, String email){
 
         String res = soapService.requestSoap(User.builder()
                                                 .name(name)
@@ -23,6 +20,8 @@ public class SoapController {
                                                 .email(email)
                                                 .build()
                                             );
+        System.out.println("\nres = " + res);
+        soapService.parseSoapXML(res);
     }
 
 }
