@@ -1,8 +1,12 @@
 package com.inspien.service;
 
-import com.inspien.common.JDBCTemplate;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.inspien.util.JDBCTemplate;
 import com.inspien.model.dao.OrderDao;
 import com.inspien.model.dto.*;
+import com.inspien.model.dto.Record;
 import jakarta.xml.soap.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -27,18 +31,40 @@ public class SoapServiceImpl implements SoapService {
     private final String nameSpaceURI = "http://inspien.co.kr/Recruit/Test";
 
     public SoapServiceImpl() {
-        Properties prop = new Properties();
-        InputStream input = getClass().getClassLoader().getResourceAsStream("hosts.properties");
-        try {
-            prop.load(input);
-        } catch (IOException e) {
-            throw new RuntimeException("hosts.properties 를 읽어올 수 없습니다.");
-        }
-        String inspienpoc = prop.getProperty("soap.service.host");
-        String port = prop.getProperty("soap.service.port");
-        endPoint = "http://" + inspienpoc + ":" + port + "/XISOAPAdapter/MessageServlet?senderParty=&senderService=INSPIEN&receiverParty=&receiverService=&interface=InspienGetRecruitingTestServicesInfo&interfaceNamespace=http%3A%2F%2Finspien.co.kr%2FRecruit%2FTest";
-
+        endPoint = this.loadEndPoint();
         orderDao = new OrderDao();
+    }
+
+
+    @Override
+    public String loadEndPoint() {
+        Properties prop = new Properties();
+        String endpoint;
+
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("hosts.properties")) {
+            if (input == null) {
+                throw new RuntimeException("hosts.properties 파일이 클래스패스에 존재하지 않습니다.");
+            }
+
+            prop.load(input);
+
+            String host = prop.getProperty("soap.service.host");
+            String port = prop.getProperty("soap.service.port");
+
+            if (host == null || port == null) {
+                throw new RuntimeException("필수 프로퍼티 (soap.service.host 또는 soap.service.port)가 설정되지 않았습니다.");
+            }
+
+            endpoint = String.format("http://%s:%s/XISOAPAdapter/MessageServlet" +
+                    "?senderParty=&senderService=INSPIEN&receiverParty=&receiverService=" +
+                    "&interface=InspienGetRecruitingTestServicesInfo" +
+                    "&interfaceNamespace=http%%3A%%2F%%2Finspien.co.kr%%2FRecruit%%2FTest", host, port);
+
+        } catch (IOException e) {
+            throw new RuntimeException("hosts.properties 파일을 읽는 중 오류 발생: " + e.getMessage(), e);
+        }
+
+        return endpoint;
     }
 
     @Override
@@ -67,19 +93,15 @@ public class SoapServiceImpl implements SoapService {
             // DB_CONN_INFO 추출
             String dbconn = getTagValue(doc, "DB_CONN_INFO");
 
-            System.out.println(dbconn);
-
             // DB_CONN_INFO 추출
             String ftpconn = getTagValue(doc, "FTP_CONN_INFO");
 
-            System.out.println(ftpconn);
-
             soapResponse = SoapResponse.builder()
-                                            .xmlData(xmlDecoded)
-                                            .jsonData(jsonDecoded)
-                                            .dbConnInfo(dbconn)
-                                            .ftpConnInfo(ftpconn)
-                                        .build();
+                    .xmlData(xmlDecoded)
+                    .jsonData(jsonDecoded)
+                    .dbConnInfo(dbconn)
+                    .ftpConnInfo(ftpconn)
+                    .build();
 
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
@@ -87,7 +109,7 @@ public class SoapServiceImpl implements SoapService {
             throw new RuntimeException(e);
         } catch (SAXException e) {
             throw new RuntimeException(e);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -101,7 +123,7 @@ public class SoapServiceImpl implements SoapService {
             // SOAP Envelope 생성
             SOAPEnvelope envelope = soapPart.getEnvelope();
             envelope.addNamespaceDeclaration(nameSpace, nameSpaceURI);
-            
+
             // SOAP BODY 생성
             SOAPBody body = envelope.getBody();
             SOAPElement operation = body.addChildElement("MT_RecruitingTestServices", "in");
@@ -119,11 +141,11 @@ public class SoapServiceImpl implements SoapService {
     @Override
     public String requestSoapWebService(User user) {
         try {
-            
+
             // SOAP 커넥션 생성
             SOAPConnectionFactory factory = SOAPConnectionFactory.newInstance();
             SOAPConnection soapConnection = factory.createConnection();
-            
+
             // SOAP 메시지 전송
 
             SOAPMessage request = this.createSoapRequest("http://sap.com/xi/WebService/soap1.1", user);
@@ -153,7 +175,7 @@ public class SoapServiceImpl implements SoapService {
             MessageFactory messageFactory = MessageFactory.newInstance();
 
             SOAPMessage soapMessage = messageFactory.createMessage();
-            
+
             //  BODY 생성
             this.createSoapEnvelope(soapMessage, user);
 
@@ -162,13 +184,8 @@ public class SoapServiceImpl implements SoapService {
             headers.addHeader("SOAPAction", soapAction);
 
             soapMessage.saveChanges();
-
-            soapMessage.writeTo(System.out);
-
             return soapMessage;
         } catch (SOAPException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -178,22 +195,22 @@ public class SoapServiceImpl implements SoapService {
 
         NodeList nodelist = doc.getElementsByTagName(tagName);
 
-        for (int i = 0; i < nodelist.getLength(); i++){
+        for (int i = 0; i < nodelist.getLength(); i++) {
             Node parentNode = nodelist.item(i);
             NodeList childNodes = parentNode.getChildNodes();
             if (childNodes.getLength() == 1) {
                 res.append(parentNode.getTextContent());
                 return res.toString();
             }
-            for (int j = 0; j < childNodes.getLength(); j++){
+            for (int j = 0; j < childNodes.getLength(); j++) {
                 Node childNode = childNodes.item(j);
-                if (childNode.getNodeType() == Node.ELEMENT_NODE){ // 요소 노드만 추출
+                if (childNode.getNodeType() == Node.ELEMENT_NODE) { // 요소 노드만 추출
                     res.append(childNode.getTextContent()).append(" ");
                 }
             }
         }
 
-        if (res == null){
+        if (res == null) {
             throw new Exception("해당 태그명의 값이 존재하지 않습니다.");
         }
 
@@ -219,7 +236,7 @@ public class SoapServiceImpl implements SoapService {
 
             Map<Integer, List<ItemResponse>> itemMap = parseXmlDatasDetail(doc.getElementsByTagName("DETAIL"));
 
-            for (Map.Entry<Integer, List<ItemResponse>> entry : itemMap.entrySet()){
+            for (Map.Entry<Integer, List<ItemResponse>> entry : itemMap.entrySet()) {
                 int orderNum = entry.getKey();
                 orderInserts.add(
                         OrderInsert.builder()
@@ -313,13 +330,14 @@ public class SoapServiceImpl implements SoapService {
         return itemMap;
     }
 
-    @Override
-    public int insertOrderList(List<OrderInsert> orders) {
 
-        int res = 0;
+    @Override
+    public int insertOrderList(List<OrderInsert> orders, Map<String, String> dbconfig) {
+
+        int res = 1;
 
         try {
-            Connection conn = JDBCTemplate.getConnection();
+            Connection conn = JDBCTemplate.getConnection(dbconfig.get("host"), dbconfig.get("port"), dbconfig.get("sid"), dbconfig.get("user"), dbconfig.get("password"));
 
             for (OrderInsert orderInsert : orders) {
                 for (ItemResponse itemResponse : orderInsert.getItems()) {
@@ -338,4 +356,83 @@ public class SoapServiceImpl implements SoapService {
         return res;
     }
 
+    @Override
+    public List<Record> handleJsonDatas(String jsonData) {
+        List<Record> records = null;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            // record 필드를 가져와 List<Record> 로 변환
+            records = objectMapper.readValue(
+                    objectMapper.readTree(jsonData).get("record").toString(),
+                    new TypeReference<ArrayList<Record>>() {
+                    }
+            );
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return records;
+    }
+
+
+    @Override
+    public Map<String, String> connInfoToMap(String connInfo, int type) {
+        Map<String, String> connInfoMap = new HashMap<>();
+
+        String[] dbConnInfoKeys = {"host", "port", "sid", "user", "password", "tablename"};
+        String[] ftpConnInfoKeys = {"host", "port", "user", "password", "filepath"};
+
+        String[] keys = type == 1 ? dbConnInfoKeys : ftpConnInfoKeys;
+
+        // 데이터 유효성 검사
+        if (connInfo == null || connInfo.trim().isEmpty()) {
+            throw new IllegalArgumentException("Connection Info가 비어있습니다.");
+        }
+
+        // 공백 기준으로 문자열 분할
+        String[] tokens = connInfo.split(" ");
+
+        if (tokens.length != keys.length) {
+            throw new IllegalArgumentException("FTP Connection Info의 형식이 잘못되었습니다. 필요한 데이터 개수: " + keys.length);
+        }
+
+        // 키와 값을 매칭하여 Map에 추가
+        for (int i = 0; i < keys.length; i++) {
+            connInfoMap.put(keys[i], tokens[i]);
+        }
+
+        return connInfoMap;
+    }
+
+    @Override
+    public void convertToFlatFile(List<Record> records, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (Record record : records) {
+                // 각 필드를 |로 구분해 한 줄로 작성
+                String flatLine = String.join("^",
+                        record.getNames(),
+                        record.getPhone(),
+                        record.getEmail(),
+                        record.getBirthday(),
+                        record.getCompany(),
+                        record.getPersonalNumber(),
+                        record.getOrganizationNumber(),
+                        record.getCountry(),
+                        record.getRegion(),
+                        record.getCity(),
+                        record.getStreet(),
+                        record.getZipCode(),
+                        record.getCreditCard(),
+                        record.getGuid()
+                ) + "\\n";
+
+                writer.write(flatLine);
+                writer.newLine(); // 다음 줄로 이동
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("파일 생성 실패");
+        }
+    }
 }

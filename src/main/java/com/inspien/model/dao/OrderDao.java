@@ -14,11 +14,12 @@ public class OrderDao {
 
         String sql = """
                 INSERT INTO INSPIEN_XMLDATA_INFO
-                (ORDER_NUM, ORDER_ID, ORDER_DATE, ORDER_PRICE, ORDER_QTY, RECEIVER_NAME, RECEIVER_NO, ETA_DATE, DESTINATION, DESCIPTION,
-                ITEM_SEQ, ITEM_NAME, ITEM_QTY, ITEM_COLOR, ITEM_PRICE
+                (
+                ORDER_NUM, ORDER_ID, ORDER_DATE, ORDER_PRICE, ORDER_QTY, RECEIVER_NAME, RECEIVER_NO, ETA_DATE, DESTINATION, DESCIPTION,
+                ITEM_SEQ, ITEM_NAME, ITEM_QTY, ITEM_COLOR, ITEM_PRICE, SENDER
                 )
                 VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '김동현')
                 """;
 
         try(PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -40,8 +41,6 @@ public class OrderDao {
             ps.setInt(15, item.getItemPrice());
 
             res = ps.executeUpdate();
-
-            System.out.println(res);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

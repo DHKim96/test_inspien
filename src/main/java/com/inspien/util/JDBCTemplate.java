@@ -1,27 +1,17 @@
-package com.inspien.common;
+package com.inspien.util;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class JDBCTemplate {
-
-    public static Connection getConnection() throws ClassNotFoundException, SQLException {
+    public static Connection getConnection(String host, String port, String sid, String user, String password) throws ClassNotFoundException, SQLException {
         Connection conn = null;
 
         try {
-
-            Properties prop = new Properties();
-            InputStream input = JDBCTemplate.class.getClassLoader().getResourceAsStream("hosts.properties");
-
-            prop.load(input);
-
-            String host = prop.getProperty("db.conn.info.host");
-            String port = prop.getProperty("db.conn.info.port");
-            String sid = prop.getProperty("db.conn.info.sid");
-            String user = prop.getProperty("db.conn.info.user");
-            String password = prop.getProperty("db.conn.info.password");
 
             String url = "jdbc:oracle:thin:@" + host + ":" + port + ":" + sid;
 
@@ -35,8 +25,6 @@ public class JDBCTemplate {
             throw new ClassNotFoundException("클래스를 찾을 수 없습니다.");
         } catch (SQLException e) {
             throw new SQLException("DB와의 작업에 실패했습니다.");
-        } catch (IOException e) {
-            throw new RuntimeException("hosts.properties 를 읽어올 수 없습니다.");
         }
 
         return conn;
