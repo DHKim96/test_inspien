@@ -1,9 +1,10 @@
 package com.inspien.service;
 
-import com.inspien.model.dto.User;
+import com.inspien.common.JDBCTemplate;
+import com.inspien.model.dao.OrderDao;
+import com.inspien.model.dto.*;
 import jakarta.xml.soap.*;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -13,12 +14,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Base64;
-import java.util.Properties;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.*;
 
 public class SoapServiceImpl implements SoapService {
+
+    private final OrderDao orderDao;
 
     private final String endPoint;
     private final String nameSpace = "in";
@@ -35,66 +37,16 @@ public class SoapServiceImpl implements SoapService {
         String inspienpoc = prop.getProperty("soap.service.host");
         String port = prop.getProperty("soap.service.port");
         endPoint = "http://" + inspienpoc + ":" + port + "/XISOAPAdapter/MessageServlet?senderParty=&senderService=INSPIEN&receiverParty=&receiverService=&interface=InspienGetRecruitingTestServicesInfo&interfaceNamespace=http%3A%2F%2Finspien.co.kr%2FRecruit%2FTest";
+
+        orderDao = new OrderDao();
     }
 
     @Override
-    public String requestSoap(User user) {
+    public SoapResponse parseSoapXML(String response) {
+
+        SoapResponse soapResponse = null;
 
         try {
-
-            URL url = new URL(endPoint);
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true); // 안해줬더니 에러 발생
-
-            conn.setRequestMethod("POST");
-            conn.addRequestProperty("Content-Type", "text/xml");
-
-            String sendMessage = """
-                    <?xml version="1.0" encoding="UTF-8"?>
-                    <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
-                                    xmlns:ins="http://inspien.co.kr/Recruit/Test">
-                        <soap:Body>
-                            <ins:MT_RecruitingTestServices>
-                                <ins:NAME>%s</ins:NAME>
-                                <ins:PHONE_NUMBER>%s</ins:PHONE_NUMBER>
-                                <ins:E_MAIL>%s</ins:E_MAIL>
-                            </ins:MT_RecruitingTestServices>
-                        </soap:Body>
-                    </soap:Envelope>
-                    """.formatted(user.getName(), user.getPhone(), user.getEmail());
-
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            wr.write(sendMessage);
-            wr.flush();
-
-            // 결과 읽기
-            String inputLine = null;
-            StringBuilder response = new StringBuilder();
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-
-
-            System.out.println("response :" + response);
-
-            in.close();
-            wr.close();
-            conn.disconnect();
-
-            return response.toString();
-        } catch (Exception e) {
-            throw new RuntimeException("SOAP 요청 실패: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void parseSoapXML(String response) {
-
-
-        try {
-
             InputSource is = new InputSource();
             is.setCharacterStream(new StringReader(response));
             is.setEncoding("UTF-8");
@@ -104,24 +56,30 @@ public class SoapServiceImpl implements SoapService {
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(is);
 
+            // XML DATA 가져오기 및 Base64 디코딩
+            String xmlBase64 = this.getTagValue(doc, "XML_DATA");
+            String xmlDecoded = new String(Base64.getDecoder().decode(xmlBase64), "EUC-KR");
 
-//            // XML DATA 가져오기 및 Base64 디코딩
-//            String xmlBase64 = this.getTagValue(doc, "XML_DATA");
-//            String xmlDecoded = new String(Base64.getDecoder().decode(xmlBase64), "EUC-KR");
-//            System.out.println("Decoded XML_DATA: \n" + xmlDecoded);
-//
-//            // JSON_DATA 및 디코딩
-//            String jsonBase64 = getTagValue(doc, "JSON_DATA");
-//            String jsonDecoded = new String(Base64.getDecoder().decode(jsonBase64), "UTF-8");
-//            System.out.println("Decoded JSON_DATA: \n" + jsonDecoded);
+            // JSON_DATA 및 디코딩
+            String jsonBase64 = getTagValue(doc, "JSON_DATA");
+            String jsonDecoded = new String(Base64.getDecoder().decode(jsonBase64), "UTF-8");
 
             // DB_CONN_INFO 추출
             String dbconn = getTagValue(doc, "DB_CONN_INFO");
-            System.out.println("DB Connection Info =" + dbconn);
+
+            System.out.println(dbconn);
 
             // DB_CONN_INFO 추출
             String ftpconn = getTagValue(doc, "FTP_CONN_INFO");
-            System.out.println("FTP_CONN_INFO =" + ftpconn);
+
+            System.out.println(ftpconn);
+
+            soapResponse = SoapResponse.builder()
+                                            .xmlData(xmlDecoded)
+                                            .jsonData(jsonDecoded)
+                                            .dbConnInfo(dbconn)
+                                            .ftpConnInfo(ftpconn)
+                                        .build();
 
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
@@ -129,7 +87,11 @@ public class SoapServiceImpl implements SoapService {
             throw new RuntimeException(e);
         } catch (SAXException e) {
             throw new RuntimeException(e);
+        } catch (Exception e){
+            e.printStackTrace();
         }
+
+        return soapResponse;
     }
 
     @Override
@@ -182,7 +144,6 @@ public class SoapServiceImpl implements SoapService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     @Override
@@ -202,9 +163,7 @@ public class SoapServiceImpl implements SoapService {
 
             soapMessage.saveChanges();
 
-            System.out.println("Request SOAP Message:");
             soapMessage.writeTo(System.out);
-            System.out.println("\n");
 
             return soapMessage;
         } catch (SOAPException e) {
@@ -214,21 +173,169 @@ public class SoapServiceImpl implements SoapService {
         }
     }
 
-    private String getTagValue(Document doc, String tagName) {
+    public String getTagValue(Document doc, String tagName) throws Exception {
+        StringBuilder res = new StringBuilder();
+
         NodeList nodelist = doc.getElementsByTagName(tagName);
 
-        StringBuilder res = null;
+        for (int i = 0; i < nodelist.getLength(); i++){
+            Node parentNode = nodelist.item(i);
+            NodeList childNodes = parentNode.getChildNodes();
+            if (childNodes.getLength() == 1) {
+                res.append(parentNode.getTextContent());
+                return res.toString();
+            }
+            for (int j = 0; j < childNodes.getLength(); j++){
+                Node childNode = childNodes.item(j);
+                if (childNode.getNodeType() == Node.ELEMENT_NODE){ // 요소 노드만 추출
+                    res.append(childNode.getTextContent()).append(" ");
+                }
+            }
+        }
 
-        System.out.println(nodelist.getLength());
-
-        Element e = null;
-
-        for (int i = 0; i < nodelist.getLength(); i++) {
-            e = (Element) nodelist.item(i);
-            res.append(e.getTextContent());
+        if (res == null){
+            throw new Exception("해당 태그명의 값이 존재하지 않습니다.");
         }
 
         return res.toString();
+    }
+
+    @Override
+    public List<OrderInsert> handleXmlDatas(String xmlData) {
+
+        List<OrderInsert> orderInserts = new ArrayList<>();
+
+        InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(xmlData));
+        is.setEncoding("UTF-8");
+
+        try {
+            // XML 파싱
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document doc = db.parse(is);
+
+            Map<Integer, OrderResponse> ordMap = parseXmlDatasHeader(doc.getElementsByTagName("HEADER"));
+
+            Map<Integer, List<ItemResponse>> itemMap = parseXmlDatasDetail(doc.getElementsByTagName("DETAIL"));
+
+            for (Map.Entry<Integer, List<ItemResponse>> entry : itemMap.entrySet()){
+                int orderNum = entry.getKey();
+                orderInserts.add(
+                        OrderInsert.builder()
+                                .order(ordMap.get(orderNum))
+                                .items(itemMap.get(orderNum))
+                                .build()
+                );
+            }
+
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (SAXException e) {
+            throw new RuntimeException(e);
+        }
+
+        return orderInserts;
+    }
+
+    @Override
+    public Map<Integer, OrderResponse> parseXmlDatasHeader(NodeList nodeList) {
+        Map<Integer, OrderResponse> ordMap = new HashMap<>();
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node parentNode = nodeList.item(i);
+            NodeList childNodes = parentNode.getChildNodes();
+
+            int orderNum = Integer.parseInt(childNodes.item(0).getTextContent());
+            String orderId = childNodes.item(1).getTextContent();
+            String orderDate = childNodes.item(2).getTextContent();
+            int orderPrice = Integer.parseInt(childNodes.item(3).getTextContent());
+            int orderQty = Integer.parseInt(childNodes.item(4).getTextContent());
+            String receiverName = childNodes.item(5).getTextContent();
+            String receiverNo = childNodes.item(6).getTextContent();
+            String etaDate = childNodes.item(7).getTextContent();
+            String destination = childNodes.item(8).getTextContent();
+            String description = childNodes.item(9).getTextContent();
+
+            OrderResponse orderResponse = OrderResponse.builder()
+                    .orderNum(orderNum)
+                    .orderId(orderId)
+                    .orderDate(orderDate)
+                    .orderPrice(orderPrice)
+                    .orderQty(orderQty)
+                    .receiverName(receiverName)
+                    .receiverNo(receiverNo)
+                    .etaDate(etaDate)
+                    .destination(destination)
+                    .description(description)
+                    .build();
+
+            ordMap.put(orderNum, orderResponse);
+        }
+
+        return ordMap;
+    }
+
+    @Override
+    public Map<Integer, List<ItemResponse>> parseXmlDatasDetail(NodeList nodeList) {
+
+        Map<Integer, List<ItemResponse>> itemMap = new HashMap<>();
+
+        for (int i = 0; i < nodeList.getLength(); i++) {
+            Node parentNode = nodeList.item(i);
+            NodeList childNodes = parentNode.getChildNodes();
+
+            int orderNum = Integer.parseInt(childNodes.item(0).getTextContent());
+            int itemSeq = Integer.parseInt(childNodes.item(1).getTextContent());
+            String itemName = childNodes.item(2).getTextContent();
+            int itemQty = Integer.parseInt(childNodes.item(3).getTextContent());
+            String itemColor = childNodes.item(4).getTextContent();
+            int itemPrice = Integer.parseInt(childNodes.item(5).getTextContent());
+
+            ItemResponse item = ItemResponse.builder()
+                    .orderNum(orderNum)
+                    .itemSeq(itemSeq)
+                    .itemName(itemName)
+                    .itemQty(itemQty)
+                    .itemColor(itemColor)
+                    .itemPrice(itemPrice)
+                    .build();
+
+
+            if (!itemMap.containsKey(orderNum)) {
+                itemMap.put(orderNum, new ArrayList<>());
+            }
+
+            itemMap.get(orderNum).add(item);
+        }
+        return itemMap;
+    }
+
+    @Override
+    public int insertOrderList(List<OrderInsert> orders) {
+
+        int res = 0;
+
+        try {
+            Connection conn = JDBCTemplate.getConnection();
+
+            for (OrderInsert orderInsert : orders) {
+                for (ItemResponse itemResponse : orderInsert.getItems()) {
+                    res *= orderDao.insertOrder(conn, orderInsert.getOrder(), itemResponse);
+                }
+            }
+
+            conn.close();
+
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
     }
 
 }
