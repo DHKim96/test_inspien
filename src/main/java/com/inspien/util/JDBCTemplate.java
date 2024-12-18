@@ -1,5 +1,7 @@
 package com.inspien.util;
 
+import com.inspien.exception.DataBaseException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
@@ -8,23 +10,21 @@ import java.util.Map;
 import java.util.Properties;
 
 public class JDBCTemplate {
-    public static Connection getConnection(String host, String port, String sid, String user, String password) throws ClassNotFoundException, SQLException {
+    public static Connection getConnection(String host, String port, String sid, String user, String password) {
         Connection conn = null;
 
+        String url = "jdbc:oracle:thin:@" + host + ":" + port + ":" + sid;
+        String className = "oracle.jdbc.driver.OracleDriver";
         try {
-
-            String url = "jdbc:oracle:thin:@" + host + ":" + port + ":" + sid;
-
             // 1. JDBC Driver 등록
-            Class.forName("oracle.jdbc.driver.OracleDriver");
+            Class.forName(className);
 
             // 2. Connection 객체 생성
             conn = DriverManager.getConnection(url, user, password);
-
-        } catch (ClassNotFoundException e){
-            throw new ClassNotFoundException("클래스를 찾을 수 없습니다.");
+        } catch (ClassNotFoundException e) {
+            throw new DataBaseException(className + "을 찾을 수 없습니다.");
         } catch (SQLException e) {
-            throw new SQLException("DB와의 작업에 실패했습니다.");
+            throw new DataBaseException("DriverManager 연결에 실패했습니다.");
         }
 
         return conn;

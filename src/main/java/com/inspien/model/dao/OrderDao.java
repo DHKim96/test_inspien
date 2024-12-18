@@ -1,5 +1,6 @@
 package com.inspien.model.dao;
 
+import com.inspien.exception.DataBaseException;
 import com.inspien.model.dto.ItemResponse;
 import com.inspien.model.dto.OrderInsert;
 import com.inspien.model.dto.OrderResponse;
@@ -16,10 +17,10 @@ public class OrderDao {
                 INSERT INTO INSPIEN_XMLDATA_INFO
                 (
                 ORDER_NUM, ORDER_ID, ORDER_DATE, ORDER_PRICE, ORDER_QTY, RECEIVER_NAME, RECEIVER_NO, ETA_DATE, DESTINATION, DESCIPTION,
-                ITEM_SEQ, ITEM_NAME, ITEM_QTY, ITEM_COLOR, ITEM_PRICE, SENDER
+                ITEM_SEQ, ITEM_NAME, ITEM_QTY, ITEM_COLOR, ITEM_PRICE
                 )
                 VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '김동현')
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try(PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -43,7 +44,7 @@ public class OrderDao {
             res = ps.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException("INSPIEN_XMLDATA_INFO 테이블 주문 데이터 INSERT SQL 오류가 발생했습니다. 에러 메시지 : " + e.getMessage(),  e);
         }
 
         return res;
