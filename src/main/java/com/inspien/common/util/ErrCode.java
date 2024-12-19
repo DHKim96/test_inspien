@@ -1,4 +1,4 @@
-package com.inspien.common.exception;
+package com.inspien.common.util;
 
 public enum ErrCode {
 

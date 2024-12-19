@@ -1,6 +1,6 @@
 package com.inspien.common.util;
 
-import com.inspien.common.exception.ErrCode;
+import com.inspien.common.exception.ParseCustomException;
 import com.inspien.common.exception.SoapCustomException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -16,29 +16,28 @@ public class CommonUtil {
      * @param connInfo SOAP 로 응답받은 서버 연결 정보 데이터.
      * @param type 연결 정보 주체(DATABASE, FTP)
      * @return HashMap<태그명, 태그 내용> 으로 변환된 SOAP 응답 데이터.
-     * @throws IllegalArgumentException ConnectionType 내에 존재하지 않는 type 일 경우
+     * @throws ParseCustomException
      */
-    public static Map<String, String> parseConnectionInfoToMap(String connInfo, ConnectionType type) throws IllegalArgumentException {
+    public static Map<String, String> parseConnectionInfoToMap(String connInfo, ConnectionType type) throws ParseCustomException {
         Map<String, String> connInfoMap = new HashMap<>();
 
-        // 키셋 정의
-        String[] keys;
-        switch (type) {
-            case DATABASE -> keys = new String[]{"host", "port", "sid", "user", "password", "tablename"};
-            case FTP -> keys = new String[]{"host", "port", "user", "password", "filepath"};
-            default -> throw new IllegalArgumentException(ErrCode.CONNECTION_TYPE_UNSUPPORTED.getCode() + ErrCode.CONNECTION_TYPE_UNSUPPORTED.getMsg(type.toString()));
+        if (!ConnectionType.isValidType(String.valueOf(type))){
+            throw new ParseCustomException(ErrCode.CONNECTION_TYPE_UNSUPPORTED, String.valueOf(type));
         }
+
+        // 키셋 가져오기
+        String[] keys = type.getKeys();
 
         // 데이터 유효성 검사
         if (connInfo == null || connInfo.trim().isEmpty()) {
-            throw new IllegalArgumentException(type + " Connection Info 가 비어있습니다.");
+            throw new ParseCustomException(ErrCode.NULL_POINT_ERROR, type + " Connection Info");
         }
 
         // 공백 기준으로 문자열 분할
         String[] tokens = connInfo.split(" ");
 
         if (tokens.length != keys.length) {
-            throw new IllegalArgumentException(type + " Connection Info의 형식이 잘못되었습니다. 필요한 데이터 개수: " + keys.length);
+            throw new ParseCustomException(ErrCode.INVALID_FORMAT,  type + " Connection Info");
         }
 
         // 키와 값을 매칭하여 Map에 추가
@@ -55,13 +54,13 @@ public class CommonUtil {
      * @param tagName : 태그명
      * @return 각 태그별 요소의 TEXT
      */
-    public static String getTagValue(Document doc, String tagName) throws SoapCustomException {
+    public static String getTagValue(Document doc, String tagName) throws ParseCustomException {
         StringBuilder res = new StringBuilder();
 
         NodeList nodelist = doc.getElementsByTagName(tagName);
 
         if (nodelist.getLength() == 0) {
-            throw new SoapCustomException("WSDL 에서 [%s] 태그가 존재하지 않습니다.".formatted(tagName));
+            throw new ParseCustomException(ErrCode.XML_ELEMENT_NOT_FOUND, tagName);
         }
 
         for (int i = 0; i < nodelist.getLength(); i++) {
@@ -80,7 +79,7 @@ public class CommonUtil {
         }
 
         if (res.isEmpty()) {
-            throw new SoapCustomException("[%s] 태그 내에 값이 존재하지 않습니다.".formatted(tagName));
+            throw new ParseCustomException(ErrCode.NULL_POINT_ERROR, tagName + " 태그");
         }
 
         return res.toString();

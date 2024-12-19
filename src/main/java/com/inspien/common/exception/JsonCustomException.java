@@ -1,10 +1,14 @@
 package com.inspien.common.exception;
 
-public class JsonCustomException extends RuntimeException {
-    public JsonCustomException(String message) {
-        super(message);
+import com.inspien.common.util.ErrCode;
+
+public class JsonCustomException extends AbstractProcessException {
+
+    public JsonCustomException(ErrCode errCode, String args) {
+        super(errCode, args);
     }
-    public JsonCustomException(String message, Throwable cause) {
-        super(message, cause);
+
+    public JsonCustomException(ErrCode errCode, Throwable cause, String args) {
+        super(errCode, cause, args);
     }
 }

@@ -1,13 +1,14 @@
 package com.inspien.common.exception;
 
-public class SoapCustomException extends RuntimeException {
+import com.inspien.common.util.ErrCode;
 
-    public SoapCustomException(String message) {
-        super(message);
+public class SoapCustomException extends AbstractProcessException {
+
+    public SoapCustomException(ErrCode errCode, String args) {
+        super(errCode, args);
     }
 
-    public SoapCustomException(String message, Throwable cause) {
-        super(message, cause);
+    public SoapCustomException(ErrCode errCode, Throwable cause, String args) {
+        super(errCode, cause, args);
     }
-
 }

@@ -1,10 +1,13 @@
 package com.inspien.common.exception;
 
-public class DbCustomException extends RuntimeException {
-    public DbCustomException(String message) {
-        super(message);
+import com.inspien.common.util.ErrCode;
+
+public class DbCustomException extends AbstractProcessException {
+    public DbCustomException(ErrCode errCode, String args) {
+        super(errCode, args);
     }
-    public DbCustomException(String message, Throwable cause) {
-      super(message, cause);
+
+    public DbCustomException(ErrCode errCode,Throwable cause, String args) {
+        super(errCode, cause, args);
     }
 }

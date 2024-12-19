@@ -1,10 +1,14 @@
 package com.inspien.common.exception;
 
-public class XmlCustomException extends RuntimeException {
-    public XmlCustomException(String message) {
-        super(message);
+import com.inspien.common.util.ErrCode;
+
+public class XmlCustomException extends AbstractProcessException {
+
+    public XmlCustomException(ErrCode errCode, String args) {
+        super(errCode, args);
     }
-    public XmlCustomException(String message, Throwable cause) {
-        super(message, cause);
+
+    public XmlCustomException(ErrCode errCode, Throwable cause, String args) {
+        super(errCode, cause, args);
     }
 }
