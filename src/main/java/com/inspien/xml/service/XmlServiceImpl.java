@@ -1,7 +1,9 @@
 package com.inspien.xml.service;
 
 import com.inspien.common.exception.DbCustomException;
+import com.inspien.common.exception.SoapCustomException;
 import com.inspien.common.exception.XmlCustomException;
+import com.inspien.common.util.ErrCode;
 import com.inspien.common.util.JDBCTemplate;
 import com.inspien.xml.dao.OrderDao;
 import com.inspien.xml.dto.ItemResponse;
@@ -19,17 +21,26 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * XmlService 인터페이스의 구현 클래스.
+ * XML 데이터를 처리하고 DB에 저장하는 기능을 제공합니다.
+ */
 public class XmlServiceImpl implements XmlService {
 
     private final String ENCODING;
 
     private final OrderDao orderDao;
 
+    /**
+     * 기본 생성자.
+     * UTF-8 인코딩을 사용하고 OrderDao를 초기화합니다.
+     */
     public XmlServiceImpl() {
         ENCODING = "UTF-8";
         orderDao = new OrderDao();
@@ -44,21 +55,23 @@ public class XmlServiceImpl implements XmlService {
         is.setCharacterStream(new StringReader(xmlData));
         is.setEncoding(ENCODING);
 
+        String[] keys = {"HEADER", "DETAIL"};
+
         try {
             // XML 파싱
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(is);
 
-            NodeList headerNodeList = doc.getElementsByTagName("HEADER");
+            NodeList headerNodeList = doc.getElementsByTagName(keys[0]);
             if (headerNodeList.getLength() == 0) {
-                throw new XmlCustomException("xmlData 에 HEADER 태그가 존재하지 않습니다.");
+                throw new XmlCustomException(ErrCode.XML_ELEMENT_NOT_FOUND, keys[0]);
             }
             Map<Integer, OrderResponse> ordMap = parseXmlDataHeader(headerNodeList);
 
-            NodeList detailNodeList = doc.getElementsByTagName("DETAIL");
+            NodeList detailNodeList = doc.getElementsByTagName(keys[1]);
             if (detailNodeList.getLength() == 0) {
-                throw new XmlCustomException("xmlData 에 DETAIL 태그가 존재하지 않습니다.");
+                throw new XmlCustomException(ErrCode.XML_ELEMENT_NOT_FOUND, keys[1]);
             }
             Map<Integer, List<ItemResponse>> itemMap = parseXmlDataDetail(detailNodeList);
 
@@ -73,49 +86,57 @@ public class XmlServiceImpl implements XmlService {
             }
 
         } catch (ParserConfigurationException e) {
-            throw new XmlCustomException("DocumentBuilder 생성에 실패했습니다.",e);
+            throw new XmlCustomException(ErrCode.SOAP_DOCUMENT_BUILDER_NOT_CREATED, e);
         } catch (IOException e) {
-            throw new XmlCustomException("DocumentBuilder 파싱 시 입출력 오류가 발생했습니다.",e);
+            throw new XmlCustomException(ErrCode.IO_STREAM_ERROR, e);
         } catch (SAXException e) {
-            throw new XmlCustomException("xmlData 가 유효하지 않은 형식입니다.", e);
+            throw new XmlCustomException(ErrCode.INVALID_FORMAT, "XML_DATA", e);
         }
 
         return orderInserts;
     }
 
+
+    /**
+     * HEADER 태그의 데이터를 파싱하여 OrderResponse 맵으로 변환합니다.
+     *
+     * @param nodeList HEADER 태그의 NodeList
+     * @return OrderResponse 객체를 담은 맵 (키: orderNum)
+     * @throws XmlCustomException HEADER 데이터 파싱 중 오류가 발생한 경우
+     */
     private Map<Integer, OrderResponse> parseXmlDataHeader(NodeList nodeList) throws XmlCustomException {
 
+        String key = "HEADER";
         Map<Integer, OrderResponse> ordMap = new HashMap<>();
+        int childNodesNum = 10;
 
-        int errorIndex = 0;
+        for (int parentNodeIdx = 0; parentNodeIdx < nodeList.getLength(); parentNodeIdx++) {
+            Node parentNode = nodeList.item(parentNodeIdx);
 
-        try {
 
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node parentNode = nodeList.item(i);
+            if (parentNode == null) {
+                throw new XmlCustomException(ErrCode.XML_ELEMENT_NOT_FOUND, String.format("%s %s번째 노드", key, parentNodeIdx));
+            }
 
-                errorIndex = i;
+            NodeList childNodes = parentNode.getChildNodes();
 
-                if (parentNode == null) {
-                    throw new XmlCustomException("HEADER 에 해당 ParentNode 가 존재하지 않습니다.");
-                }
+            if (childNodes.getLength() < childNodesNum) {
+                throw new XmlCustomException(ErrCode.XML_CHILD_NODE_LESS, key);
+            }
 
-                NodeList childNodes = parentNode.getChildNodes();
+            int childNodeIdx = 0;
 
-                if (childNodes.getLength() < 10) {
-                    throw new XmlCustomException("HEADER 노드의 자식 노드가 예상보다 적습니다. 노드 길이: " + (childNodes != null ? childNodes.getLength() : 0));
-                }
-
-                int orderNum = Integer.parseInt(childNodes.item(0).getTextContent());
-                String orderId = childNodes.item(1).getTextContent();
-                String orderDate = childNodes.item(2).getTextContent();
-                int orderPrice = Integer.parseInt(childNodes.item(3).getTextContent());
-                int orderQty = Integer.parseInt(childNodes.item(4).getTextContent());
-                String receiverName = childNodes.item(5).getTextContent();
-                String receiverNo = childNodes.item(6).getTextContent();
-                String etaDate = childNodes.item(7).getTextContent();
-                String destination = childNodes.item(8).getTextContent();
-                String description = childNodes.item(9).getTextContent();
+            try {
+                int orderNum = Integer.parseInt(childNodes.item(childNodeIdx++).getTextContent());
+                String orderId = childNodes.item(childNodeIdx++).getTextContent();
+                String orderDate = childNodes.item(childNodeIdx++).getTextContent();
+                int orderPrice = Integer.parseInt(childNodes.item(childNodeIdx++).getTextContent());
+                int orderQty = Integer.parseInt(childNodes.item(childNodeIdx++).getTextContent());
+                String receiverName = childNodes.item(childNodeIdx++).getTextContent();
+                String receiverNo = childNodes.item(childNodeIdx++).getTextContent();
+                String etaDate = childNodes.item(childNodeIdx++).getTextContent();
+                String destination = childNodes.item(childNodeIdx++).getTextContent();
+                String description = childNodes.item(childNodeIdx++).getTextContent();
 
                 OrderResponse orderResponse = OrderResponse.builder()
                         .orderNum(orderNum)
@@ -131,45 +152,55 @@ public class XmlServiceImpl implements XmlService {
                         .build();
 
                 ordMap.put(orderNum, orderResponse);
+
+            } catch (NullPointerException e) {
+                throw new XmlCustomException(ErrCode.XML_ELEMENT_NOT_FOUND, String.format("%s %s번째 노드의 %s번째 요소", key, parentNodeIdx, childNodeIdx));
+            } catch (NumberFormatException e) {
+                throw new XmlCustomException(ErrCode.INVALID_FORMAT, String.format("%s %s번째 노드의 %s번째 요소", key, parentNodeIdx, childNodeIdx));
             }
-        } catch (NullPointerException e) {
-            throw new XmlCustomException("XML_DATA HEADER 필수 노드 또는 값이 null입니다. 노드 인덱스: " + errorIndex, e);
-        } catch (Exception e) {
-            throw new XmlCustomException("XML_DATA HEADER 파싱 중 알 수 없는 예외가 발생했습니다. 노드 인덱스: " + errorIndex, e);
         }
 
         return ordMap;
     }
 
+
+    /**
+     * DETAIL 태그의 데이터를 파싱하여 ItemResponse 맵으로 변환합니다.
+     *
+     * @param nodeList DETAIL 태그의 NodeList
+     * @return ItemResponse 객체를 담은 맵 (키: orderNum)
+     * @throws XmlCustomException DETAIL 데이터 파싱 중 오류가 발생한 경우
+     */
     private Map<Integer, List<ItemResponse>> parseXmlDataDetail(NodeList nodeList) throws XmlCustomException {
+
+        String key = "DETAIL";
 
         Map<Integer, List<ItemResponse>> itemMap = new HashMap<>();
 
-        int errorIndex = 0;
+        int parentNodeIdx;
+        int childNodeIdx;
 
-        try {
+        for (parentNodeIdx = 0; parentNodeIdx < nodeList.getLength(); parentNodeIdx++) {
+            Node parentNode = nodeList.item(parentNodeIdx);
 
-            for (int i = 0; i < nodeList.getLength(); i++) {
-                Node parentNode = nodeList.item(i);
+            if (parentNode == null) {
+                throw new XmlCustomException(ErrCode.XML_ELEMENT_NOT_FOUND, String.format("%s %s번째 노드", key, parentNodeIdx));
+            }
 
-                errorIndex = i;
+            childNodeIdx = 0;
+            NodeList childNodes = parentNode.getChildNodes();
 
-                if (parentNode == null) {
-                    throw new XmlCustomException("DETAIL 에 해당 ParentNode 가 존재하지 않습니다.");
-                }
+            if (childNodes.getLength() < 6) {
+                throw new XmlCustomException(ErrCode.XML_CHILD_NODE_LESS, key);
+            }
 
-                NodeList childNodes = parentNode.getChildNodes();
-
-                if (childNodes.getLength() < 6) {
-                    throw new XmlCustomException("DETAIL 노드의 자식 노드가 예상보다 적습니다. 노드 길이: " + (childNodes != null ? childNodes.getLength() : 0));
-                }
-
-                int orderNum = Integer.parseInt(childNodes.item(0).getTextContent());
-                int itemSeq = Integer.parseInt(childNodes.item(1).getTextContent());
-                String itemName = childNodes.item(2).getTextContent();
-                int itemQty = Integer.parseInt(childNodes.item(3).getTextContent());
-                String itemColor = childNodes.item(4).getTextContent();
-                int itemPrice = Integer.parseInt(childNodes.item(5).getTextContent());
+            try {
+                int orderNum = Integer.parseInt(childNodes.item(childNodeIdx++).getTextContent());
+                int itemSeq = Integer.parseInt(childNodes.item(childNodeIdx++).getTextContent());
+                String itemName = childNodes.item(childNodeIdx++).getTextContent();
+                int itemQty = Integer.parseInt(childNodes.item(childNodeIdx++).getTextContent());
+                String itemColor = childNodes.item(childNodeIdx++).getTextContent();
+                int itemPrice = Integer.parseInt(childNodes.item(childNodeIdx++).getTextContent());
 
                 ItemResponse item = ItemResponse.builder()
                         .orderNum(orderNum)
@@ -186,40 +217,61 @@ public class XmlServiceImpl implements XmlService {
                 }
 
                 itemMap.get(orderNum).add(item);
-            }
 
-        } catch (NumberFormatException e) {
-            throw new XmlCustomException("XML_DATA DETAIL 파싱 중 숫자 형식 파싱 오류가 발생했습니다. 노드 인덱스: " + errorIndex, e);
-        } catch (NullPointerException e) {
-            throw new XmlCustomException("XML_DATA DETAIL 필수 노드 또는 값이 null입니다. 노드 인덱스: " + errorIndex, e);
-        } catch (Exception e) {
-            throw new XmlCustomException("XML_DATA DETAIL 파싱 중 알 수 없는 예외가 발생했습니다. 노드 인덱스: " + errorIndex, e);
+            } catch (NullPointerException e){
+                throw new XmlCustomException(ErrCode.XML_ELEMENT_NOT_FOUND, String.format("%s %s번째 노드의 %s번째 요소", key, parentNodeIdx, childNodeIdx));
+            }
         }
 
         return itemMap;
     }
 
+
     @Override
-    public int insertOrderList(List<OrderInsert> orders, Map<String, String> dbconfig) throws DbCustomException {
+    public int insertOrderList(List<OrderInsert> orders, Map<String, String> dbConfig) throws DbCustomException {
 
-        int res = 1;
+        int successCount = 0;
 
-        Connection conn = null;
+        Connection conn = JDBCTemplate.getConnection(
+                dbConfig.get("host"), dbConfig.get("port"), dbConfig.get("sid"),
+                dbConfig.get("user"), dbConfig.get("password")
+                );
 
-        conn = JDBCTemplate.getConnection(dbconfig.get("host"), dbconfig.get("port"), dbconfig.get("sid"), dbconfig.get("user"), dbconfig.get("password"));
 
-        for (OrderInsert orderInsert : orders) {
-            for (ItemResponse itemResponse : orderInsert.getItems()) {
-                res *= orderDao.insertOrder(conn, orderInsert.getOrder(), itemResponse);
-                if (res == 0){
-                    throw new DbCustomException("ORDERS 데이터 INSERT에 실패했습니다.");
+        try {
+            conn.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new DbCustomException(ErrCode.DATABASE_AUTO_COMMIT_ERROR, e);
+        }
+
+        try {
+            for (OrderInsert orderInsert : orders) {
+                for (ItemResponse itemResponse : orderInsert.getItems()) {
+                    int result = orderDao.insertOrder(conn, orderInsert.getOrder(), itemResponse);
+                    if (result == 0){
+                        // 실패 시 롤백
+                        conn.rollback();
+                        throw new DbCustomException(ErrCode.DATABASE_INSERT_FAILED, dbConfig.get("tablename"), "ORDER");
+                    }
+                    successCount++;
                 }
             }
+
+            conn.commit();
+        } catch (SQLException e) {
+            // 예외 발생 시 롤백
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                throw new DbCustomException(ErrCode.DATABASE_ROLLBACK_FAILED, rollbackEx);
+            }
+
+            throw new DbCustomException(ErrCode.DATABASE_INSERT_FAILED, dbConfig.get("tablename"), "ORDER");
         }
 
         JDBCTemplate.close(conn);
 
-        return res;
+        return successCount;
     }
 
 }

@@ -1,0 +1,243 @@
+2024-12-20 15:20:36 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류 발생: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+com.inspien.xml.controller.XmlController$1: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:36)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:143)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:53)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:32)
+	... 2 common frames omitted
+2024-12-20 15:20:36 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류 발생: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+com.inspien.xml.controller.XmlController$1: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:36)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:143)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:53)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:32)
+	... 2 common frames omitted
+2024-12-20 15:23:10 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류 발생: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+com.inspien.xml.controller.XmlController$1: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:36)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:143)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:53)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:32)
+	... 2 common frames omitted
+2024-12-20 15:23:10 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류 발생: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+com.inspien.xml.controller.XmlController$1: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:36)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:143)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:53)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:32)
+	... 2 common frames omitted
+2024-12-20 15:23:37 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류 발생: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+com.inspien.xml.controller.XmlController$1: Error Code: E015, Message: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:36)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 HEADER 1번째 노드의 11번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:143)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:53)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:32)
+	... 2 common frames omitted
+2024-12-20 15:29:44 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류 발생: Error Code: E015, Message: XML 데이터에서 DETAIL 1번째 노드의 7번째 요소가 존재하지 않습니다.
+com.inspien.xml.controller.XmlController$1: Error Code: E015, Message: XML 데이터에서 DETAIL 1번째 노드의 7번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:36)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 DETAIL 1번째 노드의 7번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataDetail(XmlServiceImpl.java:199)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:68)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:53)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:32)
+	... 2 common frames omitted
+2024-12-20 15:46:37 ERROR c.i.xml.controller.XmlController - XML 데이터 처리 중 오류가 발생했습니다.
+com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:56)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+2024-12-20 15:46:37 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다. : Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+com.inspien.xml.controller.XmlController$1: Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:39)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:56)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	... 2 common frames omitted
+2024-12-20 15:47:32 ERROR c.i.xml.controller.XmlController - XML 데이터 처리 중 오류가 발생했습니다.
+2024-12-20 15:47:32 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다. : Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+com.inspien.xml.controller.XmlController$1: Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:39)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:56)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	... 2 common frames omitted
+2024-12-20 15:49:59 ERROR c.i.xml.controller.XmlController - XML 데이터 처리 중 오류가 발생했습니다.
+2024-12-20 15:49:59 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다. : Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+2024-12-20 15:52:01 ERROR c.i.xml.controller.XmlController - XML 데이터 처리 중 오류가 발생했습니다.
+2024-12-20 15:52:01 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다. : Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+com.inspien.common.exception.XmlCustomException: Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:40)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:57)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	... 2 common frames omitted
+2024-12-20 16:07:49 ERROR c.i.xml.controller.XmlController - XML 데이터 처리 중 오류가 발생했습니다.
+2024-12-20 16:07:49 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다. : HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:56)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+2024-12-20 16:09:41 ERROR c.i.xml.controller.XmlController - XML 데이터 처리 중 오류가 발생했습니다.
+com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:55)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+2024-12-20 16:11:13 ERROR c.i.xml.controller.XmlController - XML 데이터 처리 중 오류가 발생했습니다.
+com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:56)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+2024-12-20 16:11:13 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다.
+2024-12-20 16:17:18 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다.
+com.inspien.xml.controller.XmlController$1: XML 데이터 처리 중 오류가 발생했습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:38)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:55)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	... 2 common frames omitted
+2024-12-20 16:18:48 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다.
+com.inspien.xml.controller.XmlController$1: XML 데이터 처리 중 오류가 발생했습니다. HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:38)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+2024-12-20 16:19:53 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다. XML 데이터 처리 중 오류가 발생했습니다. 
+com.inspien.xml.controller.XmlController$1: XML 데이터 처리 중 오류가 발생했습니다. 
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:38)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:55)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	... 2 common frames omitted
+2024-12-20 16:21:40 ERROR c.i.xml.controller.XmlController - XML 데이터 처리 중 오류가 발생했습니다.
+2024-12-20 16:21:40 ERROR com.inspien.common.ServiceManager - 프로세스 실행 중 오류가 발생했습니다. Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+com.inspien.xml.controller.XmlController$1: Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:39)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:33)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:56)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:34)
+	... 2 common frames omitted
+2024-12-20 16:36:23 ERROR c.i.xml.controller.XmlController - XML 데이터 처리 중 오류가 발생했습니다.
+2024-12-20 16:36:23 ERROR com.inspien.common.ServiceManager - XML 프로세스 실행 중 오류가 발생했습니다. Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+com.inspien.common.exception.XmlDataProcessException: Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:36)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:36)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:53)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:31)
+	... 2 common frames omitted
+2024-12-20 16:36:49 ERROR com.inspien.common.ServiceManager - XML 프로세스 실행 중 오류가 발생했습니다. Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+com.inspien.common.exception.XmlDataProcessException: Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:35)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:36)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:147)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:52)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:31)
+	... 2 common frames omitted
+2024-12-20 16:44:51 ERROR com.inspien.common.ServiceManager - XML 프로세스 실행 중 오류가 발생했습니다. Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+com.inspien.common.exception.XmlDataProcessException: Error Code: E001, Message: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:35)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:36)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: HEADER 0번째 노드의 6번째 요소 형식이 유효하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataHeader(XmlServiceImpl.java:141)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:62)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:52)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:31)
+	... 2 common frames omitted
+2024-12-20 16:54:38 ERROR com.inspien.common.ServiceManager - XML 프로세스 실행 중 오류가 발생했습니다. Error Code: E015, Message: XML 데이터에서 DETAIL 0번째 노드의 7번째 요소가 존재하지 않습니다.
+com.inspien.common.exception.XmlDataProcessException: Error Code: E015, Message: XML 데이터에서 DETAIL 0번째 노드의 7번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:35)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:36)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 DETAIL 0번째 노드의 7번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataDetail(XmlServiceImpl.java:198)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:68)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:52)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:31)
+	... 2 common frames omitted
+2024-12-20 16:55:16 ERROR com.inspien.common.ServiceManager - XML 프로세스 실행 중 오류가 발생했습니다. Error Code: E015, Message: XML 데이터에서 DETAIL 0번째 노드의 7번째 요소가 존재하지 않습니다.
+com.inspien.common.exception.XmlDataProcessException: Error Code: E015, Message: XML 데이터에서 DETAIL 0번째 노드의 7번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:35)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:36)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 DETAIL 0번째 노드의 7번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataDetail(XmlServiceImpl.java:198)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:68)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:52)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:31)
+	... 2 common frames omitted
+2024-12-20 16:56:01 ERROR com.inspien.common.ServiceManager - XML 프로세스 실행 중 오류가 발생했습니다. Error Code: E015, Message: XML 데이터에서 DETAIL 0번째 노드의 7번째 요소가 존재하지 않습니다.
+com.inspien.common.exception.XmlDataProcessException: Error Code: E015, Message: XML 데이터에서 DETAIL 0번째 노드의 7번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:35)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:36)
+	at com.inspien.Main.main(Main.java:15)
+Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 DETAIL 0번째 노드의 7번째 요소가 존재하지 않습니다.
+	at com.inspien.xml.service.XmlServiceImpl.parseXmlDataDetail(XmlServiceImpl.java:198)
+	at com.inspien.xml.service.XmlServiceImpl.handleXmlData(XmlServiceImpl.java:68)
+	at com.inspien.xml.controller.XmlController.handleXmlData(XmlController.java:52)
+	at com.inspien.xml.controller.XmlController.processXmlData(XmlController.java:31)
+	... 2 common frames omitted

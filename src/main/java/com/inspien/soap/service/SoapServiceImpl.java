@@ -1,7 +1,9 @@
 package com.inspien.soap.service;
 
+import com.inspien.common.exception.ParseCustomException;
 import com.inspien.common.exception.SoapCustomException;
 import com.inspien.common.util.CommonUtil;
+import com.inspien.common.util.ErrCode;
 import com.inspien.common.validation.UserValidator;
 import com.inspien.common.validation.Validator;
 import com.inspien.soap.dto.SoapResponse;
@@ -21,16 +23,25 @@ import java.util.Base64;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * SoapService 인터페이스의 구현 클래스.
+ * SOAP 메시지 생성, 요청, 응답 파싱 등을 수행합니다.
+ */
 public class SoapServiceImpl implements SoapService {
 
     private final String nameSpace;
     private final String nameSpaceURI;
     private final String ENCODING = "UTF-8";
 
+    /**
+     * 기본 생성자.
+     * 네임스페이스와 URI 초기화.
+     */
     public SoapServiceImpl() {
         nameSpaceURI = "http://inspien.co.kr/Recruit/Test";
         nameSpace = "in";
     }
+
 
     @Override
     public String loadEndPoint() throws SoapCustomException{
@@ -39,7 +50,7 @@ public class SoapServiceImpl implements SoapService {
 
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("hosts.properties")) {
             if (input == null) {
-                throw new SoapCustomException("hosts.properties 파일이 클래스패스에 존재하지 않습니다.");
+                throw new SoapCustomException(ErrCode.FILE_NOT_FOUND, "hosts.properties");
             }
 
             prop.load(input);
@@ -48,11 +59,11 @@ public class SoapServiceImpl implements SoapService {
             String port = prop.getProperty("soap.service.port");
 
             if (host == null) {
-                throw new SoapCustomException("host 프로퍼티가 설정되지 않았습니다.");
+                throw new SoapCustomException(ErrCode.PROPERTY_NOT_FOUND, "soap.service.host");
             }
             
             if (port == null){
-                throw new SoapCustomException("port 프로퍼티가 설정되지 않았습니다.");
+                throw new SoapCustomException(ErrCode.PROPERTY_NOT_FOUND, "soap.service.port");
             }
 
             endpoint = String.format("http://%s:%s/XISOAPAdapter/MessageServlet" +
@@ -61,11 +72,12 @@ public class SoapServiceImpl implements SoapService {
                     "&interfaceNamespace=http%%3A%%2F%%2Finspien.co.kr%%2FRecruit%%2FTest", host, port);
 
         } catch (IOException e) {
-            throw new SoapCustomException("hosts 파일을 읽는 중 오류가 발생했습니다.: " + e.getMessage(), e);
+            throw new SoapCustomException(ErrCode.FILE_NOT_READ, "hosts.properties", e);
         }
 
         return endpoint;
     }
+
 
     /**
      * SOAP 호출 및 Response를 String 으로 변환
@@ -83,20 +95,22 @@ public class SoapServiceImpl implements SoapService {
             SOAPMessage request = this.createSoapRequest("http://sap.com/xi/WebService/soap1.1", user);
             SOAPMessage response = soapConnection.call(request, endPoint);
             if (response == null) {
-                throw new SoapCustomException("응답 받은 SOAPMessage 가 NULL 입니다.");
+                throw new SoapCustomException(ErrCode.NULL_POINT_ERROR, " SOAPMessage response");
             }
             res = getSoapResponseAsString(response);
         } catch (SOAPException e) {
-            throw new SoapCustomException("SOAP 호출 실패", e);
+            throw new SoapCustomException(ErrCode.CONNECTION_FAILED, "SOAP", e);
         }
 
         return res;
     }
 
+
     /**
-     * SOAP 커넥션 생성하는 메서드
-     * @return
-     * @throws SOAPException
+     * SOAP 연결을 생성합니다.
+     *
+     * @return SOAPConnection 객체
+     * @throws SoapCustomException SOAP 연결 생성 중 오류가 발생한 경우
      */
     private SOAPConnection createSoapConnection() throws SoapCustomException {
         SOAPConnection soapConnection = null;
@@ -104,16 +118,19 @@ public class SoapServiceImpl implements SoapService {
         try {
             soapConnection = SOAPConnectionFactory.newInstance().createConnection();
         } catch (SOAPException e){
-            throw new SoapCustomException("SOAP 커넥션 생성에 실패했습니다.", e);
+            throw new SoapCustomException(ErrCode.SOAP_NOT_CREATED, "SOAPConnection", e);
         }
         return soapConnection;
     }
 
+
     /**
-     * SOAP 메시지, HEADER 생성하는 메서드
-     * @param soapAction : wsdl 내 soapAction 값
-     * @param user
-     * @return
+     * SOAP 요청 메시지를 생성합니다.
+     *
+     * @param soapAction SOAP Action URL
+     * @param user       요청 데이터
+     * @return SOAPMessage 객체
+     * @throws SoapCustomException 메시지 생성 중 오류가 발생한 경우
      */
     private SOAPMessage createSoapRequest(String soapAction, User user) throws SoapCustomException {
         SOAPMessage soapMessage = null;
@@ -132,16 +149,19 @@ public class SoapServiceImpl implements SoapService {
 
             soapMessage.saveChanges();
         } catch (SOAPException e) {
-            throw new SoapCustomException("SOAP 메시지 생성에 실패했습니다.",e);
+            throw new SoapCustomException(ErrCode.SOAP_NOT_CREATED, "SOAPMessage",e);
         }
 
         return soapMessage;
     }
 
+
     /**
-     * SOAP 메시지의 Envelope, body 구성하는 메서드
-     * @param soapMessage : 생성한 SOAP 메시지
-     * @param user : 유저 정보
+     * SOAP 메시지에 Envelope와 Body를 추가합니다.
+     *
+     * @param soapMessage SOAP 메시지 객체
+     * @param user        유저 데이터
+     * @throws SoapCustomException Envelope 구성 중 오류가 발생한 경우
      */
     private void createSoapEnvelope(SOAPMessage soapMessage, User user) throws SoapCustomException {
         SOAPPart soapPart = soapMessage.getSOAPPart();
@@ -166,14 +186,17 @@ public class SoapServiceImpl implements SoapService {
             }
 
         } catch (SOAPException e) {
-            throw new SoapCustomException("SOAP Envelope 생성에 실패했습니다.", e);
+            throw new SoapCustomException(ErrCode.SOAP_NOT_CREATED, "SOAPEnvelope", e);
         }
     }
 
+
     /**
-     * Response 인 SOAP Message 를 String 으로 변환하는 메서드
-     * @param response : 응답받은 SOAPMessage
-     * @return : 응답받은 SOAPMessage 를 String 으로 변환
+     * SOAP 응답 데이터를 문자열로 변환합니다.
+     *
+     * @param response SOAPMessage 객체
+     * @return 변환된 문자열
+     * @throws SoapCustomException 변환 중 오류가 발생한 경우
      */
     private String getSoapResponseAsString(SOAPMessage response) throws SoapCustomException {
 
@@ -184,36 +207,32 @@ public class SoapServiceImpl implements SoapService {
             try {
                 response.writeTo(outputStream);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new SoapCustomException(ErrCode.IO_STREAM_ERROR, e);
             }
 
             // OutputStream을 String으로 변환
             try {
                 res = outputStream.toString(ENCODING);
             } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
+                throw new SoapCustomException(ErrCode.SOAP_MESSAGE_TO_STRING_ERROR, e);
             }
 
             if (res == null || res.isEmpty()) {
-                throw new SoapCustomException("SOAP 응답 Message 변환 값이 존재하지 않습니다.");
+                throw new SoapCustomException(ErrCode.NULL_POINT_ERROR, "SOAP_MESSAGE_TO_STRING 값");
             }
 
         } catch (SOAPException e) {
-            throw new SoapCustomException("SOAPMessage의 형식이 적절하지 않습니다.", e);
+            throw new SoapCustomException(ErrCode.INVALID_FORMAT, "SOAPMessage", e);
         } catch (IOException e) {
-            throw new SoapCustomException("OutputStream 생성에 실패했습니다", e);
+            throw new SoapCustomException(ErrCode.IO_STREAM_ERROR, e);
         }
 
         return res;
     }
 
-    /**
-     * SOAP Response 데이터에서 XML_DATA, JSON_DATA, DB연결정보, FTP연결정보 추출하는 메서드
-     * @param response : SOAP Response
-     * @return soapResponse : 각 정보들을 담은 객체
-     */
+
     @Override
-    public SoapResponse parseSoapXML(String response) throws SoapCustomException {
+    public SoapResponse parseSoapXML(String response) throws SoapCustomException, ParseCustomException {
 
         SoapResponse soapResponse = null;
 
@@ -230,7 +249,7 @@ public class SoapServiceImpl implements SoapService {
             try {
                 db = dbf.newDocumentBuilder();
             } catch (ParserConfigurationException e) {
-                throw new SoapCustomException("DocumentBuilder 생성에 실패했습니다.", e);
+                throw new SoapCustomException(ErrCode.SOAP_DOCUMENT_BUILDER_NOT_CREATED, e);
             }
 
             Document doc = null;
@@ -238,9 +257,9 @@ public class SoapServiceImpl implements SoapService {
             try {
                 doc = db.parse(is);
             } catch (SAXException e) {
-                throw new SoapCustomException("response 가 유효하지 않은 형식입니다.", e);
+                throw new SoapCustomException(ErrCode.INVALID_FORMAT, "SOAP_MESSAGE_TO_STRING", e);
             } catch (IOException e) {
-                throw new SoapCustomException("DocumentBuilder 파싱 시 입출력 오류가 발생했습니다.", e);
+                throw new SoapCustomException(ErrCode.IO_STREAM_ERROR, e);
             }
 
             // XML DATA 가져오기 및 Base64 디코딩
@@ -257,7 +276,7 @@ public class SoapServiceImpl implements SoapService {
                 xmlDecoded = new String(Base64.getDecoder().decode(xmlBase64), encoding);
                 jsonDecoded = new String(Base64.getDecoder().decode(jsonBase64), encoding);
             } catch (UnsupportedEncodingException e) {
-                throw new SoapCustomException(encoding + "은(는) 지원하지 않는 인코딩 형식입니다.", e);
+                throw new SoapCustomException(ErrCode.ENCODING_NOT_SUPPORTED, encoding, e);
             }
 
             // DB_CONN_INFO 추출
@@ -273,8 +292,9 @@ public class SoapServiceImpl implements SoapService {
                     .ftpConnInfo(ftpconn)
                     .build();
 
-        } catch (Exception e){
-            throw new SoapCustomException("알 수 없는 오류가 발생했습니다. 에러 메시지 : " + e.getMessage() , e);
+        }
+        catch (Exception e){
+            throw new SoapCustomException(ErrCode.UNKNOWN_ERROR, e);
         }
 
         return soapResponse;

@@ -8,7 +8,11 @@ public class ParseCustomException extends AbstractProcessException {
         super(errCode, args);
     }
 
-    public ParseCustomException(ErrCode errCode, Throwable cause, String args) {
-        super(errCode, cause, args);
+    public ParseCustomException(ErrCode errCode, Throwable cause) {
+        super(errCode, cause);
+    }
+
+    public ParseCustomException(ErrCode errCode, String args, Throwable cause) {
+        super(errCode, args, cause);
     }
 }

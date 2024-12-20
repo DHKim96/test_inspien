@@ -1,7 +1,6 @@
 package com.inspien.common.util;
 
 import com.inspien.common.exception.ParseCustomException;
-import com.inspien.common.exception.SoapCustomException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -9,14 +8,26 @@ import org.w3c.dom.NodeList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 공통적으로 사용되는 유틸리티 메서드 모음 클래스.
+ * <p>
+ * 주요 기능:
+ * <ul>
+ *     <li>SOAP 연결 정보 데이터를 Map으로 변환</li>
+ *     <li>XML 태그의 값을 추출</li>
+ * </ul>
+ */
 public class CommonUtil {
+
+
     /**
-     * String 형식인 SOAP 응답 데이터를 HashMap<태그명, 태그 내용> 으로 변환하는 메서드.
+     * SOAP 응답 데이터를 Map 형태로 변환합니다.
+     * 주어진 연결 정보 문자열을 공백으로 구분하여 키와 값을 매핑합니다.
      *
-     * @param connInfo SOAP 로 응답받은 서버 연결 정보 데이터.
-     * @param type 연결 정보 주체(DATABASE, FTP)
-     * @return HashMap<태그명, 태그 내용> 으로 변환된 SOAP 응답 데이터.
-     * @throws ParseCustomException
+     * @param connInfo SOAP로 응답받은 서버 연결 정보 데이터
+     * @param type     연결 정보 주체 ({@link ConnectionType})
+     * @return 변환된 연결 정보
+     * @throws ParseCustomException 연결 정보가 유효하지 않거나 포맷이 잘못된 경우 발생
      */
     public static Map<String, String> parseConnectionInfoToMap(String connInfo, ConnectionType type) throws ParseCustomException {
         Map<String, String> connInfoMap = new HashMap<>();
@@ -49,10 +60,13 @@ public class CommonUtil {
     }
 
     /**
-     * SOAP Response 의 각 태그들 내 요소를 추출하는 메서드
-     * @param doc : XML DOM
-     * @param tagName : 태그명
-     * @return 각 태그별 요소의 TEXT
+     * XML DOM에서 특정 태그의 값을 추출합니다.
+     * 주어진 태그명으로 XML 문서를 검색한 후, 해당 태그의 텍스트 내용을 반환합니다.
+     *
+     * @param doc     XML DOM 객체
+     * @param tagName 검색할 태그명
+     * @return 태그의 텍스트 내용
+     * @throws ParseCustomException 태그가 존재하지 않거나 내용이 비어 있는 경우 발생
      */
     public static String getTagValue(Document doc, String tagName) throws ParseCustomException {
         StringBuilder res = new StringBuilder();

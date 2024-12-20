@@ -1,108 +1,170 @@
 package com.inspien.json.controller;
 
-import com.inspien.common.exception.FtpCustomException;
-import com.inspien.common.exception.JsonCustomException;
+import com.inspien.common.exception.*;
 import com.inspien.common.util.CommonUtil;
 import com.inspien.common.util.ConnectionType;
+import com.inspien.common.util.ErrCode;
 import com.inspien.json.dto.RecordResponse;
 import com.inspien.json.service.JsonService;
 import com.inspien.json.service.JsonServiceImpl;
 import com.inspien.soap.dto.SoapResponse;
 import com.inspien.soap.dto.User;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * JSON 데이터를 처리하고 FTP 서버에 업로드하는 컨트롤러 클래스.
+ */
+@Slf4j
 public class JsonController {
 
     private final JsonService jsonService;
 
+    /**
+     * 기본 생성자.
+     * JsonService 구현체를 초기화합니다.
+     */
     public JsonController() {
         this.jsonService = new JsonServiceImpl();
     }
 
-    public void processJsonData(SoapResponse soapResponse, User user) {
-        // 3.1. FTP 연결 정보 매핑
-        Map<String, String> ftpConfig = this.parseFTPConnectionInfoToMap(soapResponse);
-        // 3.2. JSON_DATA 핸들링
-        List<RecordResponse> recordResponses = this.jsonDataToRecordList(soapResponse);
-        // 3.3. FLATFILE 파일명 생성
-        String fileName = this.createSaveFileName(user);
-        // 3.4. Properties 에 있는 local 저장 경로 로드
-        String localUploadPath = this.loadLocalUploadPath();
-        // 3.5. JSON_DATE FLATFILE 로 변환
-        this.convertToFlatFile(recordResponses, localUploadPath, fileName);
-        // 3.6. FLATFILE FTP 서버에 INSERT
-        boolean isUploaded = this.uploadFileToFtp(ftpConfig, localUploadPath, fileName);
-    }
-
-    private Map<String, String> parseFTPConnectionInfoToMap(SoapResponse soapResponse){
-        Map<String, String> ftpConfig = null;
+    /**
+     * SOAP 응답 데이터를 기반으로 JSON 데이터를 처리합니다.
+     *
+     * @param soapResponse SOAP 응답 데이터
+     * @param user         사용자 정보
+     * @return 처리 성공 여부
+     * @throws JsonDataProcessException JSON 데이터 처리 중 예외가 발생한 경우
+     */
+    public boolean processJsonData(SoapResponse soapResponse, User user) throws JsonDataProcessException {
+        boolean isSuccess = false;
 
         try {
-            ftpConfig = CommonUtil.parseConnectionInfoToMap(soapResponse.getFtpConnInfo(), ConnectionType.FTP);
-        } catch (IllegalArgumentException e){
-            e.printStackTrace();
+            // 3.1. FTP 연결 정보 매핑
+            Map<String, String> ftpConfig = this.parseFTPConnectionInfoToMap(soapResponse);
+            // 3.2. JSON_DATA 핸들링
+            List<RecordResponse> recordResponses = this.jsonDataToRecordList(soapResponse);
+            // 3.3. FLATFILE 파일명 생성
+            String fileName = this.createSaveFileName(user);
+            // 3.4. Properties 에 있는 local 저장 경로 로드
+            String localUploadPath = this.loadLocalUploadPath();
+            // 3.5. JSON_DATE FLATFILE 로 변환
+            this.convertToFlatFile(recordResponses, localUploadPath, fileName);
+            // 3.6. FLATFILE FTP 서버에 INSERT
+            isSuccess = this.uploadFileToFtp(ftpConfig, localUploadPath, fileName);
+        } catch (ParseCustomException | JsonCustomException | SoapCustomException | FtpCustomException e) {
+            throw new JsonDataProcessException(e);
+        }
+
+        return isSuccess;
+    }
+
+
+    /**
+     * FTP 연결 정보를 파싱합니다.
+     *
+     * @param soapResponse SOAP 응답 데이터
+     * @return FTP 연결 정보 맵
+     * @throws ParseCustomException 파싱 중 오류 발생 시
+     * @throws FtpCustomException   FTP 정보가 누락된 경우
+     */
+    private Map<String, String> parseFTPConnectionInfoToMap(SoapResponse soapResponse) throws ParseCustomException, FtpCustomException {
+        Map<String, String> ftpConfig = CommonUtil.parseConnectionInfoToMap(soapResponse.getFtpConnInfo(), ConnectionType.FTP);
+
+        if (ftpConfig.isEmpty()){
+            throw new FtpCustomException(ErrCode.NULL_POINT_ERROR, "ftpConfig");
         }
 
         return ftpConfig;
     }
 
-    private List<RecordResponse> jsonDataToRecordList(SoapResponse soapResponse){
-        List<RecordResponse> recordResponses = null;
 
-        try {
-            recordResponses = jsonService.jsonDataToList(soapResponse.getJsonData(), "record", RecordResponse.class);
-        } catch (JsonCustomException e){
-            e.printStackTrace();
+    /**
+     * JSON 데이터를 {@link RecordResponse} 객체 리스트로 변환합니다.
+     *
+     * @param soapResponse SOAP 응답 데이터
+     * @return JSON 데이터로 변환된 객체 리스트
+     * @throws JsonCustomException JSON 데이터 변환 중 오류 발생 시
+     */
+    private List<RecordResponse> jsonDataToRecordList(SoapResponse soapResponse) throws JsonCustomException {
+        String tagName = "record";
+
+        List<RecordResponse> recordResponses = jsonService.jsonDataToList(soapResponse.getJsonData(), tagName, RecordResponse.class);
+
+        if (recordResponses.isEmpty()){
+            throw new JsonCustomException(ErrCode.NULL_POINT_ERROR, tagName);
         }
 
         return recordResponses;
     }
 
-    private String createSaveFileName(User user) {
-        String fileName = null;
+    /**
+     * 파일명을 생성합니다.
+     *
+     * @param user 사용자 정보
+     * @return 생성된 파일명
+     * @throws SoapCustomException 파일명 생성 중 오류 발생 시
+     */
+    private String createSaveFileName(User user) throws SoapCustomException {
+        String fileName = jsonService.createSaveFileName(user);
 
-        try {
-            fileName = jsonService.createSaveFileName(user);
-        } catch (JsonCustomException e){
-            e.printStackTrace();
+        if (fileName.isEmpty()){
+            throw new SoapCustomException(ErrCode.NULL_POINT_ERROR, "fileName");
         }
 
         return fileName;
     }
 
-    private String loadLocalUploadPath(){
+    /**
+     * 로컬 저장 경로를 로드합니다.
+     *
+     * @return 로컬 저장 경로
+     * @throws JsonCustomException 경로 로드 중 오류 발생 시
+     */
+    private String loadLocalUploadPath() throws JsonCustomException {
 
-        String localUploadPath = null;
+        String localUploadPath = jsonService.loadLocalUploadPath();
 
-        try {
-            localUploadPath = jsonService.loadLocalUploadPath();
-
-        } catch (JsonCustomException e){
-            e.printStackTrace();
+        if (localUploadPath.isEmpty()){
+            throw new JsonCustomException(ErrCode.NULL_POINT_ERROR, "localUploadPath");
         }
 
         return localUploadPath;
     }
 
-    private void convertToFlatFile(List<RecordResponse> recordResponses, String localUploadPath, String fileName) {
 
-        try {
-            jsonService.convertToFlatFile(recordResponses, localUploadPath, fileName);
-        } catch (FtpCustomException e) {
-            e.printStackTrace();
-        }
+    /**
+     * JSON 데이터를 플랫 파일로 변환합니다.
+     *
+     * @param recordResponses JSON 데이터 객체 리스트
+     * @param localUploadPath 로컬 저장 경로
+     * @param fileName        생성된 파일명
+     * @throws FtpCustomException 파일 생성 중 오류 발생 시
+     */
+    private void convertToFlatFile(List<RecordResponse> recordResponses, String localUploadPath, String fileName) throws FtpCustomException {
+
+        jsonService.convertToFlatFile(recordResponses, localUploadPath, fileName);
+
     }
 
-    private boolean uploadFileToFtp(Map<String, String> ftpConfig, String localFilePath, String fileName){
+    /**
+     * 파일을 FTP 서버에 업로드합니다.
+     *
+     * @param ftpConfig      FTP 연결 정보
+     * @param localFilePath  로컬 파일 경로
+     * @param fileName       업로드할 파일명
+     * @return 업로드 성공 여부
+     * @throws FtpCustomException FTP 업로드 중 오류 발생 시
+     */
+    private boolean uploadFileToFtp(Map<String, String> ftpConfig, String localFilePath, String fileName) throws FtpCustomException {
 
-        boolean isUploaded = false;
+        boolean isUploaded = jsonService.uploadFileToFtp(ftpConfig, localFilePath, fileName);
 
-        try {
-            isUploaded = jsonService.uploadFileToFtp(ftpConfig, localFilePath, fileName);
-        } catch (FtpCustomException e){
-            e.printStackTrace();
+        if (!isUploaded){
+            throw new FtpCustomException(ErrCode.FTP_UPLOAD_FAILED);
         }
 
         return isUploaded;

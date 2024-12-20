@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inspien.common.exception.FtpCustomException;
 import com.inspien.common.exception.JsonCustomException;
+import com.inspien.common.exception.SoapCustomException;
+import com.inspien.common.util.ErrCode;
 import com.inspien.common.util.FtpClientUtil;
 import com.inspien.common.validation.UserValidator;
 import com.inspien.json.dto.RecordResponse;
@@ -15,6 +17,10 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * JsonService 인터페이스의 구현 클래스.
+ * JSON 데이터 파싱, 플랫 파일 변환 및 FTP 업로드 기능을 제공합니다.
+ */
 public class JsonServiceImpl implements JsonService {
 
     @Override
@@ -30,9 +36,9 @@ public class JsonServiceImpl implements JsonService {
             JsonNode chileNode = rootNode.get(tagName);
 
             if (chileNode == null) {
-                throw new JsonCustomException(String.format("JSON 데이터에서 [%s] 값이 존재하지 않습니다.", tagName));
+                throw new JsonCustomException(ErrCode.JSON_FIELD_NOT_FOUND, tagName);
             } else if (!chileNode.isArray()){
-                throw new JsonCustomException(String.format("JSON 데이터에서 [%s] 값이 배열 형태가 아닙니다.", tagName));
+                throw new JsonCustomException(ErrCode.JSON_NOT_ARRAY, tagName);
             }
 
             res = objectMapper.readValue(
@@ -40,21 +46,23 @@ public class JsonServiceImpl implements JsonService {
                     objectMapper.getTypeFactory().constructCollectionType(List.class, tClass)
             );
         } catch (JsonProcessingException e) {
-            throw new JsonCustomException(String.format("JSON 데이터를 %s 인스턴스로 역직렬화 중 JSON 매핑에 실패했습니다.", tagName), e);
+            throw new JsonCustomException(ErrCode.JSON_NOT_MAPPED, tagName, e);
         }
 
         return res;
     }
 
     @Override
-    public String loadLocalUploadPath() {
+    public String loadLocalUploadPath() throws JsonCustomException {
         String localUploadPath = null;
 
         Properties prop = new Properties();
 
-        try(InputStream input = getClass().getClassLoader().getResourceAsStream("client.properties")){
+        String fileName = "client.properties";
+
+        try(InputStream input = getClass().getClassLoader().getResourceAsStream(fileName)){
             if (input == null) {
-                throw new FileNotFoundException("property file 'client.properties' not found in the classpath");
+                throw new JsonCustomException(ErrCode.FILE_NOT_FOUND, fileName);
             }
 
             prop.load(input);
@@ -62,18 +70,18 @@ public class JsonServiceImpl implements JsonService {
             localUploadPath = prop.getProperty("local.upload.path");
 
             if (localUploadPath == null) {
-                throw new Exception("client.properties 에 localUploadPath 가 존재하지 않습니다.");
+                throw new JsonCustomException(ErrCode.PROPERTY_NOT_FOUND, fileName, localUploadPath);
             }
 
-        } catch (Exception e){
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new JsonCustomException(ErrCode.IO_STREAM_ERROR, e);
         }
 
         return localUploadPath;
     }
 
     @Override
-    public String createSaveFileName(User user) {
+    public String createSaveFileName(User user) throws SoapCustomException {
         UserValidator validator = new UserValidator();
         // 유효성 검증
         validator.validateName(user.getName());
@@ -84,7 +92,7 @@ public class JsonServiceImpl implements JsonService {
     }
 
     @Override
-    public void convertToFlatFile(List<RecordResponse> recordResponses, String localUploadPath, String fileName) {
+    public void convertToFlatFile(List<RecordResponse> recordResponses, String localUploadPath, String fileName) throws FtpCustomException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(localUploadPath + fileName))) {
             for (RecordResponse recordResponse : recordResponses) {
                 // 각 필드를 |로 구분해 한 줄로 작성
@@ -109,7 +117,7 @@ public class JsonServiceImpl implements JsonService {
                 writer.newLine(); // 다음 줄로 이동
             }
         } catch (IOException e) {
-            throw new FtpCustomException("jsonData to Flat file 생성 실패 에러 메시지 : " + e.getMessage(), e);
+            throw new FtpCustomException(ErrCode.FILE_CREATE_FAILED, e);
         }
     }
 
@@ -121,15 +129,15 @@ public class JsonServiceImpl implements JsonService {
         try {
             // 입력값 검증
             if (ftpConfig == null || ftpConfig.isEmpty()) {
-                throw new FtpCustomException("FTP 연결 정보가 비어있습니다.");
+                throw new FtpCustomException(ErrCode.NULL_POINT_ERROR, "FTP 연결 정보");
             }
 
             if (localFilePath == null || localFilePath.isEmpty()) {
-                throw new FtpCustomException("로컬 파일 저장 경로가 비어있습니다.");
+                throw new FtpCustomException(ErrCode.NULL_POINT_ERROR, "로컬 저장 경로");
             }
 
             if (fileName == null || fileName.isEmpty()) {
-                throw new FtpCustomException("파일명이 존재하지 않습니다.");
+                throw new FtpCustomException(ErrCode.NULL_POINT_ERROR, "파일명");
             }
 
             // FTP 연결 정보 추출
@@ -140,7 +148,7 @@ public class JsonServiceImpl implements JsonService {
             String filepath = ftpConfig.get("filepath");
 
             if (host == null || portString == null || user == null || password == null || filepath == null) {
-                throw new FtpCustomException("FTP 설정 정보 중 필수 값이 누락되었습니다.");
+                throw new FtpCustomException(ErrCode.NULL_POINT_ERROR, "FTP 설정 정보 중 필수 값이 누락되었습니다.");
             }
 
             int port;
@@ -148,7 +156,7 @@ public class JsonServiceImpl implements JsonService {
             try {
                 port = Integer.parseInt(portString);
             } catch (NumberFormatException e) {
-                throw new FtpCustomException("포트 정보가 숫자 형식이 아닙니다: " + portString, e);
+                throw new FtpCustomException(ErrCode.INVALID_FORMAT, "FTP 서버 PORT", e);
             }
 
             String localUploadPath = localFilePath + fileName;
@@ -159,11 +167,11 @@ public class JsonServiceImpl implements JsonService {
             isUploaded = ftpClientUtil.uploadFile(localUploadPath, remoteUploadPath);
 
             if (!isUploaded) {
-                throw new FtpCustomException("파일 업로드에 실패했습니다. 경로: " + remoteUploadPath);
+                throw new FtpCustomException(ErrCode.FTP_UPLOAD_FAILED);
             }
 
         } catch (Exception e){
-            throw new FtpCustomException("알 수 없는 오류가 발생했습니다. 에러 메시지 : " + e.getMessage(), e);
+            throw new FtpCustomException(ErrCode.UNKNOWN_ERROR, e);
         } finally {
             ftpClientUtil.disconnect();
         }
@@ -171,5 +179,4 @@ public class JsonServiceImpl implements JsonService {
 
         return isUploaded;
     }
-
 }
