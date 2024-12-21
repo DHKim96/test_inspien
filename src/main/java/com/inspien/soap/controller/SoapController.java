@@ -1,9 +1,7 @@
 package com.inspien.soap.controller;
 
-import com.inspien.common.exception.AbstractProcessException;
 import com.inspien.common.exception.ParseCustomException;
 import com.inspien.common.exception.SoapCustomException;
-import com.inspien.common.exception.SoapProcessException;
 import com.inspien.common.util.ErrCode;
 import com.inspien.soap.dto.SoapResponse;
 import com.inspien.soap.dto.User;
@@ -13,6 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * SOAP 요청 및 응답 처리를 담당하는 컨트롤러 클래스.
+ * <p>
+ * 주요 기능:
+ * <ul>
+ *     <li>SOAP 요청 생성 및 전송</li>
+ *     <li>SOAP 응답 파싱</li>
+ *     <li>SOAP 프로세스 수행</li>
+ * </ul>
  */
 @Slf4j
 public class SoapController {
@@ -32,22 +37,20 @@ public class SoapController {
      *
      * @param user SOAP 요청에 사용되는 사용자 정보
      * @return SOAP 응답 데이터가 포함된 {@link SoapResponse} 객체
-     * @throws SoapProcessException SOAP 프로세스 중 예외가 발생한 경우
+     * @throws SoapCustomException EndPoint 생성 혹은 SOAP 요청 중 예외가 발생하거나 응답 데이터가 유효하지 않을 경우
+     * @throws ParseCustomException 데이터 파싱 시 예외가 발생한 경우
      */
-    public SoapResponse executeService(User user) throws SoapProcessException {
+    public SoapResponse executeService(User user) throws SoapCustomException, ParseCustomException {
 
         SoapResponse soapResponse = null;
 
-        try {
-            // 1. endPoint 정보 로드
-            String endPoint = this.loadEndPoint();
-            // 2. SOAP Request
-            String response = this.requestSoapWebService(user, endPoint);
-            // 3. SOAP Response 파싱
-            soapResponse = this.parseSoapResponse(response);
-        } catch (SoapCustomException | ParseCustomException e) {
-            throw new SoapProcessException(e);
-        }
+        // 1. endPoint 정보 로드
+        String endPoint = this.loadEndPoint();
+        // 2. SOAP Request
+        String response = this.requestSoapWebService(user, endPoint);
+        // 3. SOAP Response 파싱
+        soapResponse = this.parseSoapResponse(response);
+
 
         return soapResponse;
     }

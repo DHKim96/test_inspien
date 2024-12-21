@@ -15,6 +15,13 @@ import java.util.Map;
 
 /**
  * XML 데이터를 처리하고 DB 작업을 수행하는 컨트롤러 클래스.
+ * <p>
+ * 주요 기능:
+ * <ul>
+ *     <li>SOAP 응답 데이터에서 DB 연결 정보를 추출</li>
+ *     <li>XML 데이터를 파싱하여 DTO 객체로 변환</li>
+ *     <li>파싱된 데이터를 DB에 삽입</li>
+ * </ul>
  */
 @Slf4j
 public class XmlController {
@@ -34,21 +41,19 @@ public class XmlController {
      *
      * @param soapResponse SOAP Response 데이터
      * @return 성공적으로 처리된 데이터 건수
-     * @throws XmlDataProcessException XML 데이터 처리 중 오류가 발생한 경우
+     * @throws ParseCustomException 데이터 파싱 시 예외가 발생한 경우
+     * @throws DbCustomException DB INSERT 시 예외가 발생한 경우
+     * @throws XmlCustomException XML 데이터 처리 중 예외가 발생한 경우
      */
-    public int processXmlData(SoapResponse soapResponse) throws XmlDataProcessException {
+    public int processXmlData(SoapResponse soapResponse) throws ParseCustomException, DbCustomException, XmlCustomException {
         int result = 0;
 
-        try {
-            // 2.1. DB 연결 정보 매핑
-            Map<String, String> dbConfig = this.parseDBConnectionInfoToMap(soapResponse);
-            // 2.2. XML_DATA 핸들링
-            List<OrderInsert> orderInserts = this.handleXmlData(soapResponse);
-            // 2.3. 핸들링한 XML_DATA DB에 INSERT
-            result = this.insertOrderList(orderInserts, dbConfig);
-        } catch (ParseCustomException | XmlCustomException | DbCustomException e) {
-            throw new XmlDataProcessException(e);
-        }
+        // 2.1. DB 연결 정보 매핑
+        Map<String, String> dbConfig = this.parseDBConnectionInfoToMap(soapResponse);
+        // 2.2. XML_DATA 핸들링
+        List<OrderInsert> orderInserts = this.handleXmlData(soapResponse);
+        // 2.3. 핸들링한 XML_DATA DB에 INSERT
+        result = this.insertOrderList(orderInserts, dbConfig);
 
         return result;
     }
