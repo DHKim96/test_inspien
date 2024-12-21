@@ -11,6 +11,10 @@ import lombok.Getter;
  */
 @Getter
 public abstract class AbstractProcessException extends Exception {
+
+    /**
+     * 에러 코드 번호
+     */
     private final String code;
 
     /**

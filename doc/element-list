@@ -1,0 +1,15 @@
+com.inspien
+com.inspien.common
+com.inspien.common.exception
+com.inspien.common.util
+com.inspien.common.validation
+com.inspien.json.controller
+com.inspien.json.dto
+com.inspien.json.service
+com.inspien.soap.controller
+com.inspien.soap.dto
+com.inspien.soap.service
+com.inspien.xml.controller
+com.inspien.xml.dao
+com.inspien.xml.dto
+com.inspien.xml.service
