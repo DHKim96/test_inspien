@@ -56,7 +56,8 @@ public class JsonController {
         // 3.1. FTP 연결 정보 매핑
         Map<String, String> ftpConfig = this.parseFTPConnectionInfoToMap(soapResponse);
         // 3.2. JSON_DATA 핸들링
-        List<RecordResponse> recordResponses = this.jsonDataToRecordList(soapResponse);
+        String tagName = "record";
+        List<RecordResponse> recordResponses = this.jsonDataToRecordList(soapResponse, tagName);
         // 3.3. FLATFILE 파일명 생성
         String fileName = this.createSaveFileName(user);
         // 3.4. Properties 에 있는 local 저장 경로 로드
@@ -94,11 +95,12 @@ public class JsonController {
      * JSON 데이터를 {@link RecordResponse} 객체 리스트로 변환합니다.
      *
      * @param soapResponse SOAP 응답 데이터
+     * @param tagName JSON XML 태그명
      * @return JSON 데이터로 변환된 객체 리스트
      * @throws JsonCustomException JSON 데이터 변환 중 오류 발생 시
+     *
      */
-    private List<RecordResponse> jsonDataToRecordList(SoapResponse soapResponse) throws JsonCustomException {
-        String tagName = "record";
+    private List<RecordResponse> jsonDataToRecordList(SoapResponse soapResponse, String tagName) throws JsonCustomException {
 
         List<RecordResponse> recordResponses = jsonService.jsonDataToList(soapResponse.getJsonData(), tagName, RecordResponse.class);
 

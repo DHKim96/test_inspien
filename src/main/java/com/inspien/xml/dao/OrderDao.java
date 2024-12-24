@@ -5,6 +5,7 @@ import com.inspien.common.util.ErrCode;
 import com.inspien.common.util.JDBCTemplate;
 import com.inspien.xml.dto.ItemResponse;
 import com.inspien.xml.dto.OrderResponse;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,6 +14,7 @@ import java.sql.SQLException;
 /**
  * XML_DATA 중 주문 데이터에 대한 DB 작업을 수행하는 DAO 클래스.
  */
+@Slf4j
 public class OrderDao {
 
     /**

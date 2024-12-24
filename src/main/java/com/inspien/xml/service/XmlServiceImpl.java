@@ -9,6 +9,7 @@ import com.inspien.xml.dao.OrderDao;
 import com.inspien.xml.dto.ItemResponse;
 import com.inspien.xml.dto.OrderInsert;
 import com.inspien.xml.dto.OrderResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -31,6 +32,7 @@ import java.util.Map;
  * XmlService 인터페이스의 구현 클래스.
  * XML 데이터를 처리하고 DB에 저장하는 기능을 제공합니다.
  */
+@Slf4j
 public class XmlServiceImpl implements XmlService {
 
     private final String ENCODING;
@@ -210,7 +212,6 @@ public class XmlServiceImpl implements XmlService {
                         .itemColor(itemColor)
                         .itemPrice(itemPrice)
                         .build();
-
 
                 if (!itemMap.containsKey(orderNum)) {
                     itemMap.put(orderNum, new ArrayList<>());

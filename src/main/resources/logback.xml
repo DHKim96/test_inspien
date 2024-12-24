@@ -22,7 +22,7 @@
         <appender-ref ref="FILE"/>
     </logger>
 
-    <logger name="com.inspien.common.ServiceManager" level="INFO" additivity="false">
+    <logger name="com.inspien" level="INFO" additivity="false">
         <appender-ref ref="CONSOLE"/>
     </logger>
 

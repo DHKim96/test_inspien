@@ -9,6 +9,7 @@ import com.inspien.common.validation.Validator;
 import com.inspien.soap.dto.SoapResponse;
 import com.inspien.soap.dto.User;
 import jakarta.xml.soap.*;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -18,6 +19,12 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.util.Base64;
 import java.util.Map;
@@ -27,6 +34,7 @@ import java.util.Properties;
  * SoapService 인터페이스의 구현 클래스.
  * SOAP 메시지 생성, 요청, 응답 파싱 등을 수행합니다.
  */
+@Slf4j
 public class SoapServiceImpl implements SoapService {
 
     private final String nameSpace;
@@ -91,8 +99,10 @@ public class SoapServiceImpl implements SoapService {
         validator.validate(user);
 
         String res = null;
+
         try (SOAPConnection soapConnection = this.createSoapConnection()) {
             SOAPMessage request = this.createSoapRequest("http://sap.com/xi/WebService/soap1.1", user);
+
             SOAPMessage response = soapConnection.call(request, endPoint);
             if (response == null) {
                 throw new SoapCustomException(ErrCode.NULL_POINT_ERROR, " SOAPMessage response");
@@ -151,7 +161,6 @@ public class SoapServiceImpl implements SoapService {
         } catch (SOAPException e) {
             throw new SoapCustomException(ErrCode.SOAP_NOT_CREATED, "SOAPMessage",e);
         }
-
         return soapMessage;
     }
 
@@ -176,10 +185,10 @@ public class SoapServiceImpl implements SoapService {
 
             // 파라미터 추가
             Map<String, String> params = Map.of(
-                    "NAME", user.getName(),
+                    "E_MAIL", user.getEmail(),
                     "PHONE_NUMBER", user.getPhone(),
-                    "E_MAIL", user.getEmail()
-            );
+                    "NAME", user.getName()
+                    );
 
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 operation.addChildElement(entry.getKey(), nameSpace).addTextNode(entry.getValue());
@@ -262,19 +271,21 @@ public class SoapServiceImpl implements SoapService {
                 throw new SoapCustomException(ErrCode.IO_STREAM_ERROR, e);
             }
 
-            // XML DATA 가져오기 및 Base64 디코딩
-            String xmlBase64 = CommonUtil.getTagValue(doc, "XML_DATA");
-            encoding = "EUC-KR";
-            String xmlDecoded = null;
 
-            // JSON_DATA 및 디코딩
-            String jsonBase64 = CommonUtil.getTagValue(doc, "JSON_DATA");
-            encoding = ENCODING;
+            String xmlDecoded = null;
             String jsonDecoded = null;
 
             try {
+                // XML DATA 가져오기 및 Base64 디코딩
+                String xmlBase64 = CommonUtil.getTagValue(doc, "XML_DATA");
+                encoding = "EUC-KR";
                 xmlDecoded = new String(Base64.getDecoder().decode(xmlBase64), encoding);
+
+                // JSON_DATA 및 디코딩
+                String jsonBase64 = CommonUtil.getTagValue(doc, "JSON_DATA");
+                encoding = ENCODING;
                 jsonDecoded = new String(Base64.getDecoder().decode(jsonBase64), encoding);
+
             } catch (UnsupportedEncodingException e) {
                 throw new SoapCustomException(ErrCode.ENCODING_NOT_SUPPORTED, encoding, e);
             }
