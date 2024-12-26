@@ -1244,3 +1244,51 @@ Caused by: com.inspien.common.exception.XmlCustomException: XML 데이터에서 
 2024-12-24 11:37:49 INFO  com.inspien.common.ServiceManager - JSON 프로세스 시작
 2024-12-24 11:37:49 INFO  com.inspien.common.ServiceManager - JSON 프로세스 완료. 업로드 결과: 성공
 2024-12-24 11:37:49 INFO  com.inspien.common.ServiceManager - 전체 프로세스 완료. XML 처리 데이터 수: 50, JSON 업로드 결과: 성공
+2024-12-26 12:45:37 INFO  com.inspien.common.ServiceManager - 프로세스 시작
+2024-12-26 12:45:37 INFO  com.inspien.common.ServiceManager - SOAP 프로세스 시작
+2024-12-26 12:45:37 ERROR com.inspien.common.ServiceManager - Soap 프로세스 실행 중 오류 발생: SOAPConnection 객체 생성 중 오류가 발생했습니다.
+com.inspien.common.exception.SoapCustomException: SOAPConnection 객체 생성 중 오류가 발생했습니다.
+	at com.inspien.soap.service.SoapServiceImpl.createSoapConnection(SoapServiceImpl.java:131)
+	at com.inspien.soap.service.SoapServiceImpl.requestSoapWebService(SoapServiceImpl.java:103)
+	at com.inspien.soap.controller.SoapController.requestSoapWebService(SoapController.java:83)
+	at com.inspien.soap.controller.SoapController.executeService(SoapController.java:50)
+	at com.inspien.common.ServiceManager.executeSoapProcess(ServiceManager.java:86)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:66)
+	at com.inspien.Main.main(Main.java:40)
+Caused by: jakarta.xml.soap.SOAPException: Unable to create SOAP connection factory: Provider com.sun.xml.messaging.saaj.client.p2p.HttpSOAPConnectionFactory not found
+	at jakarta.xml.soap.SOAPConnectionFactory.newInstance(SOAPConnectionFactory.java:64)
+	at com.inspien.soap.service.SoapServiceImpl.createSoapConnection(SoapServiceImpl.java:129)
+	... 6 common frames omitted
+2024-12-26 15:39:38 INFO  com.inspien.common.ServiceManager - 프로세스 시작
+2024-12-26 15:39:38 INFO  com.inspien.common.ServiceManager - SOAP 프로세스 시작
+2024-12-26 15:39:41 INFO  com.inspien.common.ServiceManager - SOAP 프로세스 완료
+2024-12-26 15:39:41 INFO  com.inspien.common.ServiceManager - XML 프로세스 시작
+2024-12-26 15:39:42 INFO  com.inspien.common.ServiceManager - XML 프로세스 완료. 처리된 데이터 수: 50
+2024-12-26 15:39:42 INFO  com.inspien.common.ServiceManager - JSON 프로세스 시작
+2024-12-26 15:39:42 ERROR com.inspien.common.ServiceManager - Ftp 프로세스 실행 중 오류 발생: 알 수 없는 에러가 발생했습니다.
+com.inspien.common.exception.FtpCustomException: 알 수 없는 에러가 발생했습니다.
+	at com.inspien.json.service.JsonServiceImpl.uploadFileToFtp(JsonServiceImpl.java:174)
+	at com.inspien.json.controller.JsonController.uploadFileToFtp(JsonController.java:175)
+	at com.inspien.json.controller.JsonController.processJsonData(JsonController.java:68)
+	at com.inspien.common.ServiceManager.executeJsonProcess(ServiceManager.java:115)
+	at com.inspien.common.ServiceManager.execute(ServiceManager.java:68)
+	at com.inspien.Main.main(Main.java:40)
+Caused by: com.inspien.common.exception.FtpCustomException: FTP 서버에 파일 업로드 중 오류가 발생했습니다.
+	at com.inspien.json.service.JsonServiceImpl.uploadFileToFtp(JsonServiceImpl.java:170)
+	... 5 common frames omitted
+2024-12-26 15:41:04 INFO  com.inspien.common.ServiceManager - 프로세스 시작
+2024-12-26 15:41:04 INFO  com.inspien.common.ServiceManager - SOAP 프로세스 시작
+2024-12-26 15:41:04 INFO  com.inspien.common.ServiceManager - SOAP 프로세스 완료
+2024-12-26 15:41:04 INFO  com.inspien.common.ServiceManager - XML 프로세스 시작
+2024-12-26 15:41:05 INFO  com.inspien.common.ServiceManager - XML 프로세스 완료. 처리된 데이터 수: 50
+2024-12-26 15:41:05 INFO  com.inspien.common.ServiceManager - JSON 프로세스 시작
+2024-12-26 15:41:06 INFO  com.inspien.common.ServiceManager - JSON 프로세스 완료. 업로드 결과: 성공
+2024-12-26 15:41:06 INFO  com.inspien.common.ServiceManager - 전체 프로세스 완료. XML 처리 데이터 수: 50, JSON 업로드 결과: 성공
+2024-12-26 16:22:59 INFO  com.inspien.common.ServiceManager - 프로세스 시작
+2024-12-26 16:22:59 INFO  com.inspien.common.ServiceManager - SOAP 프로세스 시작
+2024-12-26 16:23:00 INFO  com.inspien.common.ServiceManager - SOAP 프로세스 완료
+2024-12-26 16:23:00 INFO  com.inspien.common.ServiceManager - XML 프로세스 시작
+2024-12-26 16:23:01 INFO  com.inspien.common.ServiceManager - XML 프로세스 완료. 처리된 데이터 수: 50
+2024-12-26 16:23:01 INFO  com.inspien.common.ServiceManager - JSON 프로세스 시작
+2024-12-26 16:23:01 INFO  com.inspien.common.ServiceManager - JSON 프로세스 완료. 업로드 결과: 성공
+2024-12-26 16:23:01 INFO  com.inspien.common.ServiceManager - 전체 프로세스 완료. XML 처리 데이터 수: 50, JSON 업로드 결과: 성공

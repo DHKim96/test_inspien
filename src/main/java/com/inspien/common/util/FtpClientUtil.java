@@ -37,10 +37,12 @@ public class FtpClientUtil {
      */
     public FtpClientUtil(String host, int port, String username, String password) throws FtpCustomException {
         type = "FTP";
-        this.ftpClient = new FTPClient();
+        this.ftpClient = new FTPClient(); // 인스턴스 생성
         try {
             ftpClient.setControlEncoding(ENCODING); // 인코딩 설정(connect 이전으로 위치 수정 시 성공)
-            ftpClient.connect(host, port);
+            // FTPClient의 제어 연결(control connection)에 대한 인코딩 설정이 서버와의 연결이 이루어지기 전에 이루어져야 하기 때문
+
+            ftpClient.connect(host, port); //  3-way Handshake 방식으로 연결을 수행
 
             int reply = ftpClient.getReplyCode();
 
@@ -50,7 +52,21 @@ public class FtpClientUtil {
             }
 
             ftpClient.login(username, password);
-            ftpClient.enterLocalPassiveMode();
+            ftpClient.enterLocalPassiveMode(); // FTP 클라이언트를 패시브 모드로 작동
+            /*
+                * 액티브 모드
+                *   1. 클라이언트가 먼저 서버에 연결 요청.
+                *   2. 서버가 클라이언트의 데이터 포트로 되돌아 연결.
+                *   => 클라이언트가 방화벽 뒤에 있을 경우 연결 문제 발생 가능
+                *
+                * 패시브 모드
+                *   1. 클라이언트가 서버에 데이터 포트 연결 요청
+                *   2. 서버가 데이터 전송용 포트 번호를 클라이언트에 알려줌
+                *   3. 클라이언트가 해당 포트로 연결 시도
+                *   => 연결 문제 회피 가능
+                *
+             */
+
             ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
             ftpClient.setConnectTimeout(10000); // 연결 타임아웃 10초 설정
             ftpClient.setSoTimeout(5000); // 데이터 전송 타임아웃 5초 설정

@@ -16,13 +16,6 @@
     </properties>
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/jakarta.xml.soap/jakarta.xml.soap-api -->
-        <dependency>
-            <groupId>jakarta.xml.soap</groupId>
-            <artifactId>jakarta.xml.soap-api</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/com.sun.xml.messaging.saaj/saaj-impl -->
         <dependency>
             <groupId>com.sun.xml.messaging.saaj</groupId>
