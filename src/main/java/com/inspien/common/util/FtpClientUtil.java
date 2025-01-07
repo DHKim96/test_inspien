@@ -2,6 +2,7 @@ package com.inspien.common.util;
 
 
 import com.inspien.common.exception.FtpCustomException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
@@ -18,6 +19,7 @@ import java.io.IOException;
  *     <li>FTP 연결 종료</li>
  * </ul>
  */
+@Slf4j
 public class FtpClientUtil {
     private final String type;
     private final FTPClient ftpClient;
@@ -39,8 +41,7 @@ public class FtpClientUtil {
         type = "FTP";
         this.ftpClient = new FTPClient(); // 인스턴스 생성
         try {
-            ftpClient.setControlEncoding(ENCODING); // 인코딩 설정(connect 이전으로 위치 수정 시 성공)
-            // FTPClient의 제어 연결(control connection)에 대한 인코딩 설정이 서버와의 연결이 이루어지기 전에 이루어져야 하기 때문
+            ftpClient.setControlEncoding(ENCODING);
 
             ftpClient.connect(host, port); //  3-way Handshake 방식으로 연결을 수행
 
@@ -53,19 +54,6 @@ public class FtpClientUtil {
 
             ftpClient.login(username, password);
             ftpClient.enterLocalPassiveMode(); // FTP 클라이언트를 패시브 모드로 작동
-            /*
-                * 액티브 모드
-                *   1. 클라이언트가 먼저 서버에 연결 요청.
-                *   2. 서버가 클라이언트의 데이터 포트로 되돌아 연결.
-                *   => 클라이언트가 방화벽 뒤에 있을 경우 연결 문제 발생 가능
-                *
-                * 패시브 모드
-                *   1. 클라이언트가 서버에 데이터 포트 연결 요청
-                *   2. 서버가 데이터 전송용 포트 번호를 클라이언트에 알려줌
-                *   3. 클라이언트가 해당 포트로 연결 시도
-                *   => 연결 문제 회피 가능
-                *
-             */
 
             ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
             ftpClient.setConnectTimeout(10000); // 연결 타임아웃 10초 설정
@@ -73,6 +61,19 @@ public class FtpClientUtil {
         } catch (IOException e) {
             throw new FtpCustomException(ErrCode.CONNECTION_LOGIN_FAILED, type, e);
         }
+        /*
+         * 액티브 모드
+         *   1. 클라이언트가 먼저 서버에 연결 요청.
+         *   2. 서버가 클라이언트의 데이터 포트로 되돌아 연결.
+         *   => 클라이언트가 방화벽 뒤에 있을 경우 연결 문제 발생 가능
+         *
+         * 패시브 모드
+         *   1. 클라이언트가 서버에 데이터 포트 연결 요청
+         *   2. 서버가 데이터 전송용 포트 번호를 클라이언트에 알려줌
+         *   3. 클라이언트가 해당 포트로 연결 시도
+         *   => 연결 문제 회피 가능
+         *
+         */
     }
 
 
@@ -88,7 +89,6 @@ public class FtpClientUtil {
         boolean result = false;
 
         try(FileInputStream input = new FileInputStream(localPath)) {
-
             result = ftpClient.storeFile(remoteUploadPath, input);
         } catch (IOException e) {
             throw new FtpCustomException(ErrCode.FILE_NOT_READ, localPath, e);

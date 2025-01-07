@@ -1,7 +1,6 @@
 package com.inspien.json.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inspien.common.exception.FtpCustomException;
@@ -12,6 +11,7 @@ import com.inspien.common.util.FtpClientUtil;
 import com.inspien.common.validation.UserValidator;
 import com.inspien.json.dto.RecordResponse;
 import com.inspien.soap.dto.User;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
@@ -21,6 +21,7 @@ import java.util.*;
  * JsonService 인터페이스의 구현 클래스.
  * JSON 데이터 파싱, 플랫 파일 변환 및 FTP 업로드 기능을 제공합니다.
  */
+@Slf4j
 public class JsonServiceImpl implements JsonService {
 
     @Override
@@ -41,9 +42,6 @@ public class JsonServiceImpl implements JsonService {
                 throw new JsonCustomException(ErrCode.JSON_NOT_ARRAY, tagName);
             }
 
-            // 제너릭 사용 시 readValue 로 바로 객체를 받을 수 없음
-            // 제너릭은 컴파일 시점에 타입 파라미터를 확인하고 이후에는 원래 클래스 타입만 남는 특징이 있기 때문
-            // List 반환과 같이 collection type 인 경우 constructCollectionType 메서드 사용
             res = objectMapper.readValue(
                     chileNode.toString(),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, tClass)
